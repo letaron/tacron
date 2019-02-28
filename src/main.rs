@@ -11,12 +11,12 @@ extern crate regex;
 
 
 fn ta_cron_from_crontab_line(line: String) {
-    let re = regex::Regex::new(r"[ ]+").unwrap();
+    let re = regex::Regex::new(r"\s+").unwrap();
     let mut data = re.split(&line);
     println!("{:?}", data.next());
     println!("{:?}", data.next());
 }
 
 fn main() {
-    ta_cron_from_crontab_line("0        2          12             *                *            /usr/bin/find".to_string())
+    ta_cron_from_crontab_line("0\t2          12             *                *            /usr/bin/find".to_string())
 }
