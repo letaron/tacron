@@ -1,7 +1,6 @@
 extern crate regex;
 
-use std::fmt::*;
-
+#[derive(Debug)]
 struct TaCron {
     minute: String,
     hour: String,
@@ -9,12 +8,6 @@ struct TaCron {
     month: String,
     dow: String,
     action: String
-}
-
-impl Debug for TaCron {
-    fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(f, "TaCront {{ minute: {}}}", self.minute)
-    }
 }
 
 impl TaCron {
