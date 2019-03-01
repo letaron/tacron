@@ -1,15 +1,15 @@
 extern crate regex;
-use regex::Regex;
 use crate::{Reader, TaCron};
+use regex::Regex;
 use std::fs;
 
 pub struct CrontabReader {
-    file: String
+    file: String,
 }
 
 impl CrontabReader {
     pub fn new(file: String) -> CrontabReader {
-        CrontabReader {file: file}
+        CrontabReader { file: file }
     }
 }
 
@@ -21,22 +21,16 @@ impl Reader for CrontabReader {
         let comment_regex = Regex::new(r"^\s*#").unwrap();
 
         for line in content.split("\n") {
-
-            if comment_regex.is_match(line) == true || line.len() == 0  {
+            if comment_regex.is_match(line) == true || line.len() == 0 {
                 continue;
             }
 
-            tasks.push(
-                tacron_from_crontab_line(line.to_string(), &self.file)
-                );
+            tasks.push(tacron_from_crontab_line(line.to_string(), &self.file));
         }
 
         tasks
-
     }
 }
-
-
 
 fn tacron_from_crontab_line(line: String, origin: &String) -> TaCron {
     let re = Regex::new(r"\s+").unwrap();
@@ -50,6 +44,5 @@ fn tacron_from_crontab_line(line: String, origin: &String) -> TaCron {
         cron[4].to_string(),
         cron[5].to_string(),
         origin.to_string(),
-        )
+    )
 }
-

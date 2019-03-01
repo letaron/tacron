@@ -9,12 +9,23 @@ struct TaCron {
     month: String,
     dow: String,
     action: String,
-    origin: String
+    origin: String,
 }
 
 impl TaCron {
-    fn new(minute: String, hour: String, dom: String, month: String, dow: String, action: String, origin: String) -> TaCron {
-        TaCron {minute: minute, hour: hour, dom: dom, month: month, dow: dow, action: action, origin: origin}
+    fn new(
+        minute: String, hour: String, dom: String, month: String, dow: String, action: String,
+        origin: String,
+    ) -> TaCron {
+        TaCron {
+            minute: minute,
+            hour: hour,
+            dom: dom,
+            month: month,
+            dow: dow,
+            action: action,
+            origin: origin,
+        }
     }
 }
 
