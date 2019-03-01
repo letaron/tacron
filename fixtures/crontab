@@ -1,5 +1,7 @@
-# test
-  # test
-	# test
-0	2 12 * *  /usr/bin/find
-1 2 3 4 5 ls
+# ignored
+  # ignored
+	# ignored
+0	1 2 * *        /foo/bar
+1 2-3 3,4 4 5 baz
+
+# ignored

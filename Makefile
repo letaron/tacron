@@ -1,5 +1,8 @@
 run:
 	cargo run
 
-format:
+fmt:
 	cargo +nightly fmt
+
+test:
+	cargo test
