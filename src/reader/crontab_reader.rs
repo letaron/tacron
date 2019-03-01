@@ -1,26 +1,33 @@
 extern crate regex;
 use regex::Regex;
-use crate::TaCron;
-use crate::Reader;
+use crate::{Reader, TaCron};
+use std::fs;
 
 pub struct CrontabReader {
+    file: String
+}
+
+impl CrontabReader {
+    pub fn new(file: String) -> CrontabReader {
+        CrontabReader {file: file}
+    }
 }
 
 impl Reader for CrontabReader {
     fn read(&self) -> Vec<TaCron> {
         let mut tasks: Vec<TaCron> = Vec::new();
-        let lines = "0\t2 12 * *  /usr/bin/find\n1 2 3 4 5 ls\n#comment".to_string();
+        let content = fs::read_to_string(&self.file).unwrap();
 
-        let comment_regex = Regex::new(r"^\s?#").unwrap();
+        let comment_regex = Regex::new(r"^\s*#").unwrap();
 
-        for line in lines.split("\n") {
+        for line in content.split("\n") {
 
-            if comment_regex.is_match(line) == true {
+            if comment_regex.is_match(line) == true || line.len() == 0  {
                 continue;
             }
 
             tasks.push(
-                tacron_from_crontab_line(line.to_string())
+                tacron_from_crontab_line(line.to_string(), &self.file)
                 );
         }
 
@@ -29,7 +36,9 @@ impl Reader for CrontabReader {
     }
 }
 
-fn tacron_from_crontab_line(line: String) -> TaCron {
+
+
+fn tacron_from_crontab_line(line: String, origin: &String) -> TaCron {
     let re = Regex::new(r"\s+").unwrap();
     let data = re.split(&line);
     let cron: Vec<&str> = data.collect();
@@ -40,7 +49,7 @@ fn tacron_from_crontab_line(line: String) -> TaCron {
         cron[3].to_string(),
         cron[4].to_string(),
         cron[5].to_string(),
-        "origin".to_string()
+        origin.to_string(),
         )
 }
 

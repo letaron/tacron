@@ -23,7 +23,7 @@ trait Reader {
 }
 
 fn main() {
-    let tasks_reader = CrontabReader {};
+    let tasks_reader = CrontabReader::new("fixtures/crontab".to_string());
     let tasks = tasks_reader.read();
     for task in tasks {
         println!("{:?}", task);
