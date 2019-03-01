@@ -1,7 +1,17 @@
-# ignored
-  # ignored
-	# ignored
-0	1 2 * *        /foo/bar
-1 2-3 3,4 4 5 baz
+# ignored comment
+  # ignored comment with space
+	# ignored comment with tab
 
-# ignored
+0	1 2 * *        /foo/bar
+
+1 2-3 3,4 4 5 baz "foo" 2>&1
+# 1 2-3 3,4 4 5 foo "baz" 2>&1
+
+@yearly		echo "Tous les ans			0 0 1 1 *"
+@annually	echo "== @yearly"
+@monthly	echo "Tous les mois			0 0 1 * *"
+@weekly		echo "Toutes les semaines	0 0 * * 0"
+@daily		echo "Tous les jours		0 0 * * *"
+@midnight	echo "== @daily"
+@hourly		echo "Toutes les heures		0 * * * *"
+
