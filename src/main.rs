@@ -1,5 +1,6 @@
 mod reader;
 use reader::crontab_reader::CrontabReader;
+use std::{thread, time};
 
 #[derive(Debug)]
 struct TaCron {
@@ -33,10 +34,23 @@ trait Reader {
     fn read(&self) -> Vec<TaCron>;
 }
 
-fn main() {
-    let tasks_reader = CrontabReader::new("fixtures/crontab".to_string());
-    let tasks = tasks_reader.read();
+fn execution_filter(tasks: &Vec<TaCron>) {
     for task in tasks {
         println!("{:?}", task);
     }
+}
+
+fn main() {
+    let tasks_reader = CrontabReader::new("fixtures/crontab".to_string());
+    let tasks = tasks_reader.read();
+
+    let main_loop_handler = thread::Builder::new()
+        .name("main loop".into())
+        .spawn(move || loop {
+            execution_filter(&tasks);
+            thread::sleep(time::Duration::from_millis(1000));
+        })
+        .unwrap();
+
+    main_loop_handler.join().unwrap();
 }
