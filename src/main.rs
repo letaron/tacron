@@ -1,4 +1,6 @@
+extern crate chrono;
 mod reader;
+use chrono::{Local, Timelike};
 use reader::crontab_reader::CrontabReader;
 use std::{thread, time};
 
@@ -38,6 +40,15 @@ fn execution_filter(tasks: &Vec<TaCron>) {
     for task in tasks {
         println!("{:?}", task);
     }
+
+    let now = Local::now();
+
+    println!(
+        "The current Local time is {:02}:{:02}:{:02}",
+        now.hour(),
+        now.minute(),
+        now.second()
+    );
 }
 
 fn main() {
