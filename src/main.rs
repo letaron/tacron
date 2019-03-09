@@ -4,8 +4,9 @@ use chrono::{Local, Timelike};
 use reader::crontab_reader::CrontabReader;
 use std::{thread, time};
 
+// Represent a not-yet parsed line of a crontab
 #[derive(Debug)]
-struct TaCron {
+pub struct TaCron {
     minute: String,
     hour: String,
     dom: String,
@@ -36,8 +37,11 @@ trait Reader {
     fn read(&self) -> Vec<TaCron>;
 }
 
-fn execution_filter(tasks: &Vec<TaCron>) {
-    for task in tasks {
+fn execution_filter(ta_crons: &Vec<TaCron>) {
+    for ta_cron in ta_crons {
+        println!("{:?}", ta_crons);
+
+        let task = reader::parse(ta_cron);
         println!("{:?}", task);
     }
 
@@ -52,16 +56,22 @@ fn execution_filter(tasks: &Vec<TaCron>) {
 }
 
 fn main() {
-    let tasks_reader = CrontabReader::new("fixtures/crontab".to_string());
-    let tasks = tasks_reader.read();
+    let reader = CrontabReader::new("fixtures/crontab".to_string());
+    let ta_crons = reader.read();
 
-    let main_loop_handler = thread::Builder::new()
-        .name("main loop".into())
-        .spawn(move || loop {
-            execution_filter(&tasks);
-            thread::sleep(time::Duration::from_millis(1000));
-        })
-        .unwrap();
+    for ta_cron in ta_crons {
+        println!("{:?}", ta_cron);
+        let task = reader::parse(&ta_cron);
+        println!("{:?}", task);
+    }
 
-    main_loop_handler.join().unwrap();
+    // let main_loop_handler = thread::Builder::new()
+    //     .name("main loop".into())
+    //     .spawn(move || loop {
+    //         execution_filter(&tasks);
+    //         thread::sleep(time::Duration::from_millis(10000));
+    //     })
+    //     .unwrap();
+
+    // main_loop_handler.join().unwrap();
 }

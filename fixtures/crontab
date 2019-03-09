@@ -2,16 +2,22 @@
   # ignored comment with space
 	# ignored comment with tab
 
-0	1 2 * *        /foo/bar
+*	    1       2       may     mon-fri     /foo/bar
 
-1 2-3 3,4 4 5 baz "foo" 2>&1
+1-5,8-9     2-3     3,4     */4     5           baz "foo" 2>&1
+
 # 1 2-3 3,4 4 5 foo "baz" 2>&1
 
-@yearly		echo "Tous les ans			0 0 1 1 *"
-@annually	echo "== @yearly"
-@monthly	echo "Tous les mois			0 0 1 * *"
-@weekly		echo "Toutes les semaines	0 0 * * 0"
-@daily		echo "Tous les jours		0 0 * * *"
-@midnight	echo "== @daily"
-@hourly		echo "Toutes les heures		0 * * * *"
+# @yearly		echo "Tous les ans			0 0 1 1 *"
+# @annually	echo "== @yearly"
+# @monthly	echo "Tous les mois			0 0 1 * *"
+# @weekly		echo "Toutes les semaines	0 0 * * 0"
+# @daily		echo "Tous les jours		0 0 * * *"
+# @midnight	echo "== @daily"
+# @hourly		echo "Toutes les heures		0 * * * *"
 
+# minute            0-59
+# heure             0-23
+# jour du mois      0-31
+# mois              0-12 (ou noms, voir plus bas)
+# jour de semaine   0-7 (0 et 7 pour Dimanche)

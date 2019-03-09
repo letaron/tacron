@@ -8,7 +8,7 @@ pub struct CrontabReader {
 }
 
 impl CrontabReader {
-    pub fn new(file: String) -> CrontabReader {
+    pub fn new(file: String) -> Self {
         CrontabReader { file: file }
     }
 }
