@@ -1,8 +1,7 @@
 extern crate chrono;
 mod reader;
-use chrono::{Local, Timelike};
+// use chrono::{Local, Timelike};
 use reader::crontab_reader::CrontabReader;
-use std::{thread, time};
 
 // Represent a not-yet parsed line of a crontab
 #[derive(Debug)]
@@ -37,23 +36,23 @@ trait Reader {
     fn read(&self) -> Vec<TaCron>;
 }
 
-fn execution_filter(ta_crons: &Vec<TaCron>) {
-    for ta_cron in ta_crons {
-        println!("{:?}", ta_crons);
+// fn execution_filter(ta_crons: &Vec<TaCron>) {
+//     for ta_cron in ta_crons {
+//         println!("{:?}", ta_crons);
 
-        let task = reader::parse(ta_cron);
-        println!("{:?}", task);
-    }
+//         let task = reader::parse(ta_cron);
+//         println!("{:?}", task);
+//     }
 
-    let now = Local::now();
+//     let now = Local::now();
 
-    println!(
-        "The current Local time is {:02}:{:02}:{:02}",
-        now.hour(),
-        now.minute(),
-        now.second()
-    );
-}
+//     println!(
+//         "The current Local time is {:02}:{:02}:{:02}",
+//         now.hour(),
+//         now.minute(),
+//         now.second()
+//     );
+// }
 
 fn main() {
     let reader = CrontabReader::new("fixtures/crontab".to_string());
