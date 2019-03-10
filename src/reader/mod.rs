@@ -1,5 +1,5 @@
 pub mod crontab_reader;
-use crate::TaCron;
+use crate::RawCron;
 use regex::Regex;
 use regex::Captures;
 
@@ -7,7 +7,7 @@ use regex::Captures;
 
 
 #[derive(Debug)]
-enum TimeFieldValue {
+pub enum TimeFieldValue {
     // All,
     Unique(i8),
     // NamedUnique(String),
@@ -25,9 +25,9 @@ struct FieldHandler {
 
 
 #[derive(Debug)]
-pub struct Task {
-    minute: Vec<TimeFieldValue>,
-    hour: Vec<TimeFieldValue>,
+pub struct TaCron {
+    pub minute: Vec<TimeFieldValue>,
+    pub hour: Vec<TimeFieldValue>,
 }
 
 
@@ -51,7 +51,7 @@ fn parse_field(field: &String, field_handlers: &Vec<FieldHandler>) -> Vec<TimeFi
 }
 
 
-pub fn parse(ta_cron: &TaCron) -> Task {
+pub fn parse(ta_cron: &RawCron) -> TaCron {
 
     // time_field_patterns.insert("named unique", "^[a-z]+$");
     // time_field_patterns.insert("named range", "^[a-z]+-[a-z]+$");
@@ -79,7 +79,7 @@ pub fn parse(ta_cron: &TaCron) -> Task {
     non_named_handlers.push(step_handler);
     non_named_handlers.push(stepped_range_handler);
 
-    Task {
+    TaCron {
         minute: parse_field(&ta_cron.minute, &non_named_handlers),
         hour: parse_field(&ta_cron.hour, &non_named_handlers)
     }

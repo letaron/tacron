@@ -1,5 +1,5 @@
 [package]
-name = "tacron"
+name = "ta_cron"
 version = "0.1.0"
 authors = ["tom <letaron@>"]
 edition = "2018"

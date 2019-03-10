@@ -1,5 +1,5 @@
 extern crate regex;
-use crate::{Reader, TaCron};
+use crate::{Reader, RawCron};
 use regex::Regex;
 use std::fs;
 
@@ -14,8 +14,8 @@ impl CrontabReader {
 }
 
 impl Reader for CrontabReader {
-    fn read(&self) -> Vec<TaCron> {
-        let mut tasks: Vec<TaCron> = Vec::new();
+    fn read(&self) -> Vec<RawCron> {
+        let mut tasks: Vec<RawCron> = Vec::new();
         let content = fs::read_to_string(&self.file).unwrap();
 
         let comment_regex = Regex::new(r"^\s*#").unwrap();
@@ -31,7 +31,7 @@ impl Reader for CrontabReader {
 
             if line.chars().next() == Some('@') {
                 let ta_cron = match cron[0] {
-                    "@yearly" | "@annually" => TaCron::new(
+                    "@yearly" | "@annually" => RawCron::new(
                         "0".to_string(),
                         "0".to_string(),
                         "1".to_string(),
@@ -40,7 +40,7 @@ impl Reader for CrontabReader {
                         cron[1..].join(" "),
                         self.file.to_string(),
                     ),
-                    "@monthly" => TaCron::new(
+                    "@monthly" => RawCron::new(
                         "0".to_string(),
                         "0".to_string(),
                         "1".to_string(),
@@ -49,7 +49,7 @@ impl Reader for CrontabReader {
                         cron[1..].join(" "),
                         self.file.to_string(),
                     ),
-                    "@weekly" => TaCron::new(
+                    "@weekly" => RawCron::new(
                         "0".to_string(),
                         "0".to_string(),
                         "*".to_string(),
@@ -58,7 +58,7 @@ impl Reader for CrontabReader {
                         cron[1..].join(" "),
                         self.file.to_string(),
                     ),
-                    "@daily" | "@midnight" => TaCron::new(
+                    "@daily" | "@midnight" => RawCron::new(
                         "0".to_string(),
                         "0".to_string(),
                         "*".to_string(),
@@ -67,7 +67,7 @@ impl Reader for CrontabReader {
                         cron[1..].join(" "),
                         self.file.to_string(),
                     ),
-                    "@hourly" => TaCron::new(
+                    "@hourly" => RawCron::new(
                         "0".to_string(),
                         "*".to_string(),
                         "*".to_string(),
@@ -81,7 +81,7 @@ impl Reader for CrontabReader {
 
                 tasks.push(ta_cron);
             } else {
-                tasks.push(TaCron::new(
+                tasks.push(RawCron::new(
                     cron[0].to_string(),
                     cron[1].to_string(),
                     cron[2].to_string(),
