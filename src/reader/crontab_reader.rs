@@ -112,7 +112,7 @@ mod tests {
         let tasks = reader.read();
         assert_eq!(tasks.len(), 9);
 
-        let mut task = &tasks[0];
+        let task = &tasks[0];
         assert_eq!(task.minute, "0");
         assert_eq!(task.hour, "1");
         assert_eq!(task.dom, "2");
@@ -121,7 +121,7 @@ mod tests {
         assert_eq!(task.action, "/foo/bar");
         assert_eq!(task.origin, origin);
 
-        task = &tasks[1];
+        let task = &tasks[1];
         assert_eq!(task.minute, "1");
         assert_eq!(task.hour, "2-3");
         assert_eq!(task.dom, "3,4");
