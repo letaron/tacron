@@ -29,7 +29,7 @@ pub struct TaCron {
     pub dow: Vec<TimeFieldValue>,
 }
 
-fn parse_field(field: &String, field_handlers: &Vec<&FieldHandler>) -> Vec<TimeFieldValue> {
+fn parse_field(field: &String, field_handlers: &[&FieldHandler]) -> Vec<TimeFieldValue> {
     let mut values: Vec<TimeFieldValue> = Vec::new();
 
     for specifier in field.split(",") {
@@ -102,14 +102,14 @@ pub fn parse(ta_cron: &RawCron) -> TaCron {
         },
     };
 
-    let non_named_handlers = vec![
+    let non_named_handlers = [
         &all_handler,
         &unique_handler,
         &range_handler,
         &step_handler,
         &stepped_range_handler,
     ];
-    let named_handlers = vec![
+    let named_handlers = [
         &all_handler,
         &unique_handler,
         &range_handler,
