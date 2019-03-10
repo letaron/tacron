@@ -74,6 +74,7 @@ fn main() {
                     "on a un range qui commence à {} et fini à {} avec un interval de {}",
                     start, end, step
                 ),
+                TimeFieldValue::All => println!("All the things"),
                 x => println!("pas géré {:?}", x),
             }
         }

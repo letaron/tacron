@@ -2,7 +2,7 @@
   # ignored comment with space
 	# ignored comment with tab
 
-55,22	        0-15/2,15-31/4       2       may     mon-fri     /foo/bar
+55,22,*	        0-15/2,15-31/4       2       may     mon-fri     /foo/bar
 
 1-5,8-9     */42         3,4     */4     5           baz "foo" 2>&1
 

@@ -3,19 +3,18 @@ use crate::RawCron;
 use regex::Captures;
 use regex::Regex;
 
-// static TIME_FIELD_PATTERNS: [&str; 2] = ["[a-z0-9]+\\-[a-z0-9]+/[0-9]+", "[a-z0-9]+\\-[a-z0-9]+"];
-
 #[derive(Debug)]
 pub enum TimeFieldValue {
-    // All,
+    All,
     Unique(i8),
-    // NamedUnique(String),
+    NamedUnique(String),
     Range(i8, i8),
-    // NamedRange(String, String),
+    NamedRange(String, String),
     Step(i8),
     SteppedRange(i8, i8, i8),
 }
 
+// If regex match, return the result of function "f"
 struct FieldHandler {
     regex: Regex,
     f: fn(Captures) -> TimeFieldValue,
@@ -25,15 +24,17 @@ struct FieldHandler {
 pub struct TaCron {
     pub minute: Vec<TimeFieldValue>,
     pub hour: Vec<TimeFieldValue>,
+    pub dom: Vec<TimeFieldValue>,
+    pub month: Vec<TimeFieldValue>,
+    pub dow: Vec<TimeFieldValue>,
 }
 
-fn parse_field(field: &String, field_handlers: &Vec<FieldHandler>) -> Vec<TimeFieldValue> {
+fn parse_field(field: &String, field_handlers: &Vec<&FieldHandler>) -> Vec<TimeFieldValue> {
     let mut values: Vec<TimeFieldValue> = Vec::new();
 
-    for splitted_field in field.split(",") {
+    for specifier in field.split(",") {
         for field_handler in field_handlers {
-            let captures = field_handler.regex.captures(splitted_field);
-            match captures {
+            match field_handler.regex.captures(specifier) {
                 Some(x) => values.push((field_handler.f)(x)),
                 None => {}
             }
@@ -44,8 +45,10 @@ fn parse_field(field: &String, field_handlers: &Vec<FieldHandler>) -> Vec<TimeFi
 }
 
 pub fn parse(ta_cron: &RawCron) -> TaCron {
-    // time_field_patterns.insert("named unique", "^[a-z]+$");
-    // time_field_patterns.insert("named range", "^[a-z]+-[a-z]+$");
+    let all_handler = FieldHandler {
+        regex: Regex::new(r"\*").unwrap(),
+        f: |_capture: Captures| TimeFieldValue::All,
+    };
 
     let unique_handler = FieldHandler {
         regex: Regex::new("^([0-9]+)$").unwrap(),
@@ -82,14 +85,45 @@ pub fn parse(ta_cron: &RawCron) -> TaCron {
         },
     };
 
-    let mut non_named_handlers: Vec<FieldHandler> = Vec::new();
-    non_named_handlers.push(unique_handler);
-    non_named_handlers.push(range_handler);
-    non_named_handlers.push(step_handler);
-    non_named_handlers.push(stepped_range_handler);
+    let named_unique_handler = FieldHandler {
+        regex: Regex::new("^([a-z]+)$").unwrap(),
+        f: |capture: Captures| {
+            TimeFieldValue::NamedUnique(capture.get(1).unwrap().as_str().to_string())
+        },
+    };
+
+    let named_range_handler = FieldHandler {
+        regex: Regex::new("^([a-z]+)-([a-z]+)$").unwrap(),
+        f: |capture: Captures| {
+            TimeFieldValue::NamedRange(
+                capture.get(1).unwrap().as_str().to_string(),
+                capture.get(2).unwrap().as_str().to_string(),
+            )
+        },
+    };
+
+    let non_named_handlers = vec![
+        &all_handler,
+        &unique_handler,
+        &range_handler,
+        &step_handler,
+        &stepped_range_handler,
+    ];
+    let named_handlers = vec![
+        &all_handler,
+        &unique_handler,
+        &range_handler,
+        &step_handler,
+        &stepped_range_handler,
+        &named_unique_handler,
+        &named_range_handler,
+    ];
 
     TaCron {
         minute: parse_field(&ta_cron.minute, &non_named_handlers),
         hour: parse_field(&ta_cron.hour, &non_named_handlers),
+        dom: parse_field(&ta_cron.dom, &named_handlers),
+        month: parse_field(&ta_cron.month, &named_handlers),
+        dow: parse_field(&ta_cron.dow, &named_handlers),
     }
 }
