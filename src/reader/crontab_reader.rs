@@ -1,5 +1,5 @@
 extern crate regex;
-use crate::{Reader, RawCron};
+use crate::{RawCron, Reader};
 use regex::Regex;
 use std::fs;
 

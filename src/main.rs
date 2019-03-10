@@ -67,9 +67,14 @@ fn main() {
         for specifier in ta_cron.minute {
             match specifier {
                 TimeFieldValue::Unique(value) => println!("seulement à {}", value),
-                TimeFieldValue::Range(start, end) => println!("on a un range qui commence à {} et fini à {}", start, end),
-                TimeFieldValue::SteppedRange(start, end, step) => println!("on a un range qui commence à {} et fini à {} avec un interval de {}", start, end, step),
-                x => println!("pas géré {:?}", x)
+                TimeFieldValue::Range(start, end) => {
+                    println!("on a un range qui commence à {} et fini à {}", start, end)
+                }
+                TimeFieldValue::SteppedRange(start, end, step) => println!(
+                    "on a un range qui commence à {} et fini à {} avec un interval de {}",
+                    start, end, step
+                ),
+                x => println!("pas géré {:?}", x),
             }
         }
     }
