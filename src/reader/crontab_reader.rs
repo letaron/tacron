@@ -110,7 +110,7 @@ mod tests {
         };
 
         let tasks = reader.read();
-        assert_eq!(tasks.len(), 9);
+        assert_eq!(tasks.len(), 4);
 
         let task = &tasks[0];
         assert_eq!(task.minute, "0");
