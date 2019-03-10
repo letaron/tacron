@@ -16,7 +16,7 @@ impl CrontabReader {
 impl Reader for CrontabReader {
     fn read(&self) -> Vec<RawCron> {
         let mut tasks: Vec<RawCron> = Vec::new();
-        let content = fs::read_to_string(&self.file).unwrap();
+        let content = fs::read_to_string(&self.file).expect("Unable to read file");
 
         let comment_regex = Regex::new(r"^\s*#").unwrap();
         let line_regex = Regex::new(r"\s+").unwrap();
