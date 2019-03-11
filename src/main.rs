@@ -2,7 +2,6 @@ extern crate chrono;
 mod reader;
 // use chrono::{Local, Timelike};
 use reader::crontab_reader::CrontabReader;
-use reader::TimeFieldValue;
 
 // Represent a not-yet parsed line of a crontab
 #[derive(Debug)]
@@ -14,6 +13,26 @@ pub struct RawCron {
     dow: String,
     action: String,
     origin: String,
+}
+
+#[derive(Debug)]
+pub enum TimeFieldValue {
+    All,
+    Unique(i8),
+    NamedUnique(String),
+    Range(i8, i8),
+    NamedRange(String, String),
+    Step(i8),
+    SteppedRange(i8, i8, i8),
+}
+
+#[derive(Debug)]
+pub struct TaCron {
+    pub minute: Vec<TimeFieldValue>,
+    pub hour: Vec<TimeFieldValue>,
+    pub dom: Vec<TimeFieldValue>,
+    pub month: Vec<TimeFieldValue>,
+    pub dow: Vec<TimeFieldValue>,
 }
 
 impl RawCron {
@@ -35,6 +54,7 @@ impl RawCron {
 
 trait Reader {
     fn read(&self) -> Vec<RawCron>;
+    fn tacrons(&self) -> Vec<TaCron>;
 }
 
 // fn execution_filter(ta_crons: &Vec<RawCron>) {
@@ -57,11 +77,9 @@ trait Reader {
 
 fn main() {
     let reader = CrontabReader::new("fixtures/crontab".to_string());
-    let raw_crons = reader.read();
+    let ta_crons = reader.tacrons();
 
-    for raw_cron in raw_crons {
-        println!("{:?}", raw_cron);
-        let ta_cron = reader::parse(&raw_cron);
+    for ta_cron in ta_crons {
         println!("{:?}", ta_cron);
 
         for specifier in ta_cron.minute {
