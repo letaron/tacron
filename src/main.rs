@@ -1,5 +1,5 @@
 extern crate chrono;
-mod reader;
+pub mod reader;
 // use chrono::{Local, Timelike};
 use reader::crontab_reader::CrontabReader;
 
