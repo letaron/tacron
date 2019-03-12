@@ -1,6 +1,5 @@
 extern crate regex;
-use crate::reader::parse;
-use crate::{RawCron, Reader, TaCron};
+use crate::{RawCron, Reader};
 use regex::Regex;
 use std::fs;
 
@@ -70,15 +69,6 @@ impl Reader for CrontabReader {
         }
 
         tasks
-    }
-
-    fn tacrons(&self) -> Vec<TaCron> {
-        let raw_crons = self.read();
-        let mut ta_crons = Vec::new();
-        for raw_cron in raw_crons {
-            ta_crons.push(parse(&raw_cron));
-        }
-        ta_crons
     }
 }
 

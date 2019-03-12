@@ -1,7 +1,9 @@
 extern crate chrono;
-pub mod reader;
+mod reader;
+mod time_units;
 // use chrono::{Local, Timelike};
 use reader::crontab_reader::CrontabReader;
+use reader::parse;
 
 // Represent a not-yet parsed line of a crontab
 #[derive(Debug)]
@@ -54,7 +56,15 @@ impl RawCron {
 
 trait Reader {
     fn read(&self) -> Vec<RawCron>;
-    fn tacrons(&self) -> Vec<TaCron>;
+
+    fn tacrons(&self) -> Vec<TaCron> {
+        let raw_crons = self.read();
+        let mut ta_crons = Vec::new();
+        for raw_cron in raw_crons {
+            ta_crons.push(parse(&raw_cron));
+        }
+        ta_crons
+    }
 }
 
 // fn execution_filter(ta_crons: &Vec<RawCron>) {
