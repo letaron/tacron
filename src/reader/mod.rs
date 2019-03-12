@@ -1,4 +1,5 @@
 pub mod crontab_reader;
+pub mod postgresql_reader;
 use crate::{RawCron, TaCron, TimeFieldValue};
 use regex::{Captures, Regex};
 
