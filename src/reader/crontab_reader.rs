@@ -33,47 +33,27 @@ impl Reader for CrontabReader {
             if line.chars().next() == Some('@') {
                 let ta_cron = match cron[0] {
                     "@yearly" | "@annually" => RawCron::new(
-                        "0",
-                        "0",
-                        "1",
-                        "1",
-                        "*",
+                        "0", "0", "1", "1", "*",
                         &cron[1..].join(" "),
                         &self.file,
                     ),
                     "@monthly" => RawCron::new(
-                        "0",
-                        "0",
-                        "1",
-                        "*",
-                        "*",
+                        "0", "0", "1", "*", "*",
                         &cron[1..].join(" "),
                         &self.file,
                     ),
                     "@weekly" => RawCron::new(
-                        "0",
-                        "0",
-                        "*",
-                        "*",
-                        "0",
+                        "0", "0", "*", "*", "0",
                         &cron[1..].join(" "),
                         &self.file,
                     ),
                     "@daily" | "@midnight" => RawCron::new(
-                        "0",
-                        "0",
-                        "*",
-                        "*",
-                        "*",
+                        "0", "0", "*", "*", "*",
                         &cron[1..].join(" "),
                         &self.file,
                     ),
                     "@hourly" => RawCron::new(
-                        "0",
-                        "*",
-                        "*",
-                        "*",
-                        "*",
+                        "0", "*", "*", "*", "*",
                         &cron[1..].join(" "),
                         &self.file,
                     ),
@@ -83,11 +63,7 @@ impl Reader for CrontabReader {
                 tasks.push(ta_cron);
             } else {
                 tasks.push(RawCron::new(
-                    cron[0],
-                    cron[1],
-                    cron[2],
-                    cron[3],
-                    cron[4],
+                    cron[0], cron[1], cron[2], cron[3], cron[4],
                     &cron[5..].join(" "),
                     &self.file,
                 ));
