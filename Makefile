@@ -6,3 +6,4 @@ fmt:
 
 test:
 	cargo test
+	cargo +nightly fmt --all -- --check
