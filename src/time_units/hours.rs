@@ -3,11 +3,11 @@ use crate::time_units::TimeUnitItem;
 pub struct Hours {}
 
 impl TimeUnitItem for Hours {
-    fn min(&self) -> i8 {
+    fn min() -> i8 {
         0
     }
 
-    fn max(&self) -> i8 {
+    fn max() -> i8 {
         23
     }
 }

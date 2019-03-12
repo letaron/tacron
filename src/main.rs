@@ -4,6 +4,8 @@ mod time_units;
 // use chrono::{Local, Timelike};
 use reader::crontab_reader::CrontabReader;
 use reader::parse;
+use time_units::minutes::Minutes;
+use time_units::TimeUnitItem;
 
 // Represent a not-yet parsed line of a crontab
 #[derive(Debug)]
@@ -87,25 +89,13 @@ trait Reader {
 
 fn main() {
     let reader = CrontabReader::new("fixtures/crontab".to_string());
-    let ta_crons = reader.tacrons();
+    let tacrons = reader.tacrons();
 
-    for ta_cron in ta_crons {
-        println!("{:?}", ta_cron);
+    for tacron in tacrons {
+        println!("{:?}", tacron);
 
-        for specifier in ta_cron.minute {
-            match specifier {
-                TimeFieldValue::Unique(value) => println!("seulement à {}", value),
-                TimeFieldValue::Range(start, end) => {
-                    println!("on a un range qui commence à {} et fini à {}", start, end)
-                }
-                TimeFieldValue::SteppedRange(start, end, step) => println!(
-                    "on a un range qui commence à {} et fini à {} avec un interval de {}",
-                    start, end, step
-                ),
-                TimeFieldValue::All => println!("All the things"),
-                x => println!("pas géré {:?}", x),
-            }
-        }
+        let minutes = Minutes::from_time_field_values(&tacron.minute);
+        println!("{:?}", minutes.iter());
     }
 
     // let main_loop_handler = thread::Builder::new()
