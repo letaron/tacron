@@ -26,45 +26,34 @@ impl Reader for CrontabReader {
                 continue;
             }
 
-            let data = line_regex.split(line);
-            let cron: Vec<&str> = data.collect();
+            let cron: Vec<&str> = line_regex.split(line).collect();
 
-            let timing;
+            let times_specs;
             let command_index;
 
             if line.chars().next() == Some('@') {
                 command_index = 1;
-                match cron[0] {
-                    "@yearly" | "@annually" => {
-                        timing = ["0", "0", "1", "1", "*"];
-                    }
-                    "@monthly" => {
-                        timing = ["0", "0", "1", "*", "*"];
-                    }
-                    "@weekly" => {
-                        timing = ["0", "0", "*", "*", "0"];
-                    }
-                    "@daily" | "@midnight" => {
-                        timing = ["0", "0", "*", "*", "*"];
-                    }
-                    "@hourly" => {
-                        timing = ["0", "*", "*", "*", "*"];
-                    }
+                times_specs = match cron[0] {
+                    "@yearly" | "@annually" => ["0", "0", "1", "1", "*"],
+                    "@monthly" => ["0", "0", "1", "*", "*"],
+                    "@weekly" => ["0", "0", "*", "*", "0"],
+                    "@daily" | "@midnight" => ["0", "0", "*", "*", "*"],
+                    "@hourly" => ["0", "*", "*", "*", "*"],
                     x => panic!("Invalid crontab value: {}", x),
                 };
             } else {
                 command_index = 5;
-                timing = [cron[0], cron[1], cron[2], cron[3], cron[4]]
+                times_specs = [cron[0], cron[1], cron[2], cron[3], cron[4]]
             }
 
             tasks.push(RawCron::new(
-                timing[0].to_string(),
-                timing[1].to_string(),
-                timing[2].to_string(),
-                timing[3].to_string(),
-                timing[4].to_string(),
-                cron[command_index..].join(" "),
-                self.file.to_string(),
+                times_specs[0],
+                times_specs[1],
+                times_specs[2],
+                times_specs[3],
+                times_specs[4],
+                &cron[command_index..].join(" "),
+                &self.file,
             ));
         }
 
