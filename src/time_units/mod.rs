@@ -76,7 +76,9 @@ pub trait TimeUnitItem {
                 }
             }
             TimeFieldSpec::NamedRange(ref name_start, ref name_end) => {
-                for value in Self::value_from_name(&name_start)..(Self::value_from_name(&name_end) + 1) {
+                for value in
+                    Self::value_from_name(&name_start)..(Self::value_from_name(&name_end) + 1)
+                {
                     container.insert(value);
                 }
             }
