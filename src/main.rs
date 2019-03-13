@@ -37,16 +37,17 @@ pub struct TaCron {
 
 impl RawCron {
     fn new(
-        minute: &str, hour: &str, dom: &str, month: &str, dow: &str, action: &str, origin: &str,
+        minute: String, hour: String, dom: String, month: String, dow: String, action: String,
+        origin: String,
     ) -> RawCron {
         RawCron {
-            minute: String::from(minute),
-            hour: String::from(hour),
-            dom: String::from(dom),
-            month: String::from(month),
-            dow: String::from(dow),
-            action: String::from(action),
-            origin: String::from(origin),
+            minute,
+            hour,
+            dom,
+            month,
+            dow,
+            action,
+            origin,
         }
     }
 }

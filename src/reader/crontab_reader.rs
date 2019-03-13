@@ -30,38 +30,43 @@ impl Reader for CrontabReader {
             let data = line_regex.split(line);
             let cron: Vec<&str> = data.collect();
 
+            let timing;
+            let command_index;
+
             if line.chars().next() == Some('@') {
-                let ta_cron = match cron[0] {
+                command_index = 1;
+                match cron[0] {
                     "@yearly" | "@annually" => {
-                        RawCron::new("0", "0", "1", "1", "*", &cron[1..].join(" "), &self.file)
+                        timing = ["0", "0", "1", "1", "*"];
                     }
                     "@monthly" => {
-                        RawCron::new("0", "0", "1", "*", "*", &cron[1..].join(" "), &self.file)
+                        timing = ["0", "0", "1", "*", "*"];
                     }
                     "@weekly" => {
-                        RawCron::new("0", "0", "*", "*", "0", &cron[1..].join(" "), &self.file)
+                        timing = ["0", "0", "*", "*", "0"];
                     }
                     "@daily" | "@midnight" => {
-                        RawCron::new("0", "0", "*", "*", "*", &cron[1..].join(" "), &self.file)
+                        timing = ["0", "0", "*", "*", "*"];
                     }
                     "@hourly" => {
-                        RawCron::new("0", "*", "*", "*", "*", &cron[1..].join(" "), &self.file)
+                        timing = ["0", "*", "*", "*", "*"];
                     }
                     x => panic!("Invalid crontab value: {}", x),
                 };
-
-                tasks.push(ta_cron);
             } else {
-                tasks.push(RawCron::new(
-                    cron[0],
-                    cron[1],
-                    cron[2],
-                    cron[3],
-                    cron[4],
-                    &cron[5..].join(" "),
-                    &self.file,
-                ));
+                command_index = 5;
+                timing = [cron[0], cron[1], cron[2], cron[3], cron[4]]
             }
+
+            tasks.push(RawCron::new(
+                timing[0].to_string(),
+                timing[1].to_string(),
+                timing[2].to_string(),
+                timing[3].to_string(),
+                timing[4].to_string(),
+                cron[command_index..].join(" "),
+                self.file.to_string(),
+            ));
         }
 
         tasks
