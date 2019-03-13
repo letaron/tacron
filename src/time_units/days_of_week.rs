@@ -20,7 +20,7 @@ impl TimeUnitItem for DaysOfWeek {
             "thu" | "thursday" => 4,
             "fri" | "friday" => 5,
             "sat" | "saturday" => 6,
-            _ => panic!("{} is not a valid day of week."),
+            _ => panic!("{} is not a valid day of week.", name),
         }
     }
 }

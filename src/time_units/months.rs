@@ -25,7 +25,7 @@ impl TimeUnitItem for Months {
             "oct" | "october" => 10,
             "nov" | "november" => 11,
             "dec" | "december" => 12,
-            _ => panic!("{} is not a valid month."),
+            _ => panic!("{} is not a valid month.", name),
         }
     }
 }
