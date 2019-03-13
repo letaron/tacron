@@ -67,8 +67,16 @@ pub trait TimeUnitItem {
         let mut container = TimeFieldValuesContainer::new();
         match *time_field_value {
             TimeFieldSpec::Unique(value) => container.insert(value),
+            TimeFieldSpec::NamedUnique(ref name) => {
+                container.insert(Self::value_from_name(&name));
+            }
             TimeFieldSpec::Range(start, end) => {
                 for value in start..(end + 1) {
+                    container.insert(value);
+                }
+            }
+            TimeFieldSpec::NamedRange(ref name_start, ref name_end) => {
+                for value in Self::value_from_name(&name_start)..(Self::value_from_name(&name_end) + 1) {
                     container.insert(value);
                 }
             }
@@ -81,13 +89,20 @@ pub trait TimeUnitItem {
                     i += 1;
                 }
             }
+            TimeFieldSpec::Step(step) => {
+                let mut i = 0;
+                for value in Self::min()..(Self::max() + 1) {
+                    if i % step == 0 {
+                        container.insert(value);
+                    }
+                    i += 1;
+                }
+            }
             TimeFieldSpec::All => {
                 for value in Self::min()..(Self::max() + 1) {
                     container.insert(value);
                 }
             }
-            // @todo add other TimeFieldSpec enum
-            _ => {}
         };
         container
     }
