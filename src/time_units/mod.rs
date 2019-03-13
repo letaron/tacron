@@ -81,21 +81,13 @@ pub trait TimeUnitItem {
                 }
             }
             TimeFieldSpec::SteppedRange(start, end, step) => {
-                let mut i = 0;
-                for value in start..(end + 1) {
-                    if i % step == 0 {
-                        container.insert(value);
-                    }
-                    i += 1;
+                for value in (start..(end + 1)).step_by(step as usize) {
+                    container.insert(value);
                 }
             }
             TimeFieldSpec::Step(step) => {
-                let mut i = 0;
-                for value in Self::min()..(Self::max() + 1) {
-                    if i % step == 0 {
-                        container.insert(value);
-                    }
-                    i += 1;
+                for value in (Self::min()..(Self::max() + 1)).step_by(step as usize) {
+                    container.insert(value);
                 }
             }
             TimeFieldSpec::All => {
