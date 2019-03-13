@@ -65,11 +65,11 @@ trait Reader {
 
     fn tacrons(&self) -> Vec<TaCron> {
         let raw_crons = self.read();
-        let mut ta_crons = Vec::new();
+        let mut tacrons = Vec::new();
         for raw_cron in raw_crons {
-            ta_crons.push(parse(&raw_cron));
+            tacrons.push(parse(&raw_cron));
         }
-        ta_crons
+        tacrons
     }
 }
 
