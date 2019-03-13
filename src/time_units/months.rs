@@ -1,8 +1,8 @@
 use crate::time_units::TimeUnitItem;
 
-pub struct Minutes {}
+pub struct Months {}
 
-impl TimeUnitItem for Minutes {
+impl TimeUnitItem for Months {
     fn min() -> i8 {
         1
     }

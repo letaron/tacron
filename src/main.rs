@@ -5,6 +5,7 @@ mod time_units;
 use reader::crontab_reader::CrontabReader;
 use reader::parse;
 use time_units::minutes::Minutes;
+use time_units::hours::Hours;
 use time_units::TimeUnitItem;
 
 // Represent a not-yet parsed line of a crontab
@@ -92,10 +93,13 @@ fn main() {
     let tacrons = reader.tacrons();
 
     for tacron in tacrons {
-        println!("{:?}", tacron);
+        println!("\n{:?}", tacron);
 
         let minutes = Minutes::from_time_field_values(&tacron.minute);
-        println!("{:?}", minutes.iter());
+        println!("minutes: {:?}", minutes.iter());
+
+        let hours = Hours::from_time_field_values(&tacron.hour);
+        println!("hours: {:?}", hours.iter());
     }
 
     // let main_loop_handler = thread::Builder::new()
