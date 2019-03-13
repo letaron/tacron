@@ -5,17 +5,17 @@ pub mod minutes;
 pub mod months;
 
 use crate::TimeFieldSpec;
-use std::collections::hash_set::Iter;
-use std::collections::HashSet;
+use std::collections::btree_set::Iter;
+use std::collections::BTreeSet;
 
 pub struct TimeFieldValuesContainer {
-    values: HashSet<i8>,
+    values: BTreeSet<i8>,
 }
 
 impl TimeFieldValuesContainer {
     pub fn new() -> Self {
         TimeFieldValuesContainer {
-            values: HashSet::new(),
+            values: BTreeSet::new(),
         }
     }
 
