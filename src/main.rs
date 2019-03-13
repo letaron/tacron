@@ -4,8 +4,11 @@ mod time_units;
 // use chrono::{Local, Timelike};
 use reader::crontab_reader::CrontabReader;
 use reader::parse;
-use time_units::minutes::Minutes;
+use time_units::days_of_month::DaysOfMonth;
+use time_units::days_of_week::DaysOfWeek;
 use time_units::hours::Hours;
+use time_units::minutes::Minutes;
+use time_units::months::Months;
 use time_units::TimeUnitItem;
 
 // Represent a not-yet parsed line of a crontab
@@ -100,6 +103,15 @@ fn main() {
 
         let hours = Hours::from_time_field_values(&tacron.hour);
         println!("hours: {:?}", hours.iter());
+
+        let dom = DaysOfMonth::from_time_field_values(&tacron.dom);
+        println!("dom: {:?}", dom.iter());
+
+        let months = Months::from_time_field_values(&tacron.month);
+        println!("months: {:?}", months.iter());
+
+        let dow = DaysOfWeek::from_time_field_values(&tacron.dow);
+        println!("dow: {:?}", dow.iter());
     }
 
     // let main_loop_handler = thread::Builder::new()
