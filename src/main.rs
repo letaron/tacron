@@ -20,7 +20,7 @@ pub struct RawCron {
 }
 
 #[derive(Debug)]
-pub enum TimeFieldValue {
+pub enum TimeFieldSpec {
     All,
     Unique(i8),
     NamedUnique(String),
@@ -32,11 +32,11 @@ pub enum TimeFieldValue {
 
 #[derive(Debug)]
 pub struct TaCron {
-    pub minute: Vec<TimeFieldValue>,
-    pub hour: Vec<TimeFieldValue>,
-    pub dom: Vec<TimeFieldValue>,
-    pub month: Vec<TimeFieldValue>,
-    pub dow: Vec<TimeFieldValue>,
+    pub minute: Vec<TimeFieldSpec>,
+    pub hour: Vec<TimeFieldSpec>,
+    pub dom: Vec<TimeFieldSpec>,
+    pub month: Vec<TimeFieldSpec>,
+    pub dow: Vec<TimeFieldSpec>,
 }
 
 impl RawCron {

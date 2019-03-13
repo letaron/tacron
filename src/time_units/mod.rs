@@ -4,17 +4,17 @@ pub mod hours;
 pub mod minutes;
 pub mod months;
 
-use crate::TimeFieldValue;
+use crate::TimeFieldSpec;
 use std::collections::hash_set::Iter;
 use std::collections::HashSet;
 
-pub struct TimeUnitContainer {
+pub struct TimeFieldValuesContainer {
     values: HashSet<i8>,
 }
 
-impl TimeUnitContainer {
+impl TimeFieldValuesContainer {
     pub fn new() -> Self {
-        TimeUnitContainer {
+        TimeFieldValuesContainer {
             values: HashSet::new(),
         }
     }
@@ -50,8 +50,9 @@ pub trait TimeUnitItem {
         panic!("{} is not known.")
     }
 
-    fn from_time_field_values(time_field_values: &Vec<TimeFieldValue>) -> TimeUnitContainer {
-        let mut container = TimeUnitContainer::new();
+    /// Extract values for the whole field configuration
+    fn from_time_field_values(time_field_values: &Vec<TimeFieldSpec>) -> TimeFieldValuesContainer {
+        let mut container = TimeFieldValuesContainer::new();
         for time_field_value in time_field_values {
             for value in Self::from_time_field_value(time_field_value).iter() {
                 container.insert(*value);
@@ -61,16 +62,17 @@ pub trait TimeUnitItem {
         container
     }
 
-    fn from_time_field_value(time_field_value: &TimeFieldValue) -> TimeUnitContainer {
-        let mut container = TimeUnitContainer::new();
+    /// Extract values for a unique TimeFieldSpec
+    fn from_time_field_value(time_field_value: &TimeFieldSpec) -> TimeFieldValuesContainer {
+        let mut container = TimeFieldValuesContainer::new();
         match *time_field_value {
-            TimeFieldValue::Unique(value) => container.insert(value),
-            TimeFieldValue::Range(start, end) => {
+            TimeFieldSpec::Unique(value) => container.insert(value),
+            TimeFieldSpec::Range(start, end) => {
                 for value in start..(end + 1) {
                     container.insert(value);
                 }
             }
-            TimeFieldValue::SteppedRange(start, end, step) => {
+            TimeFieldSpec::SteppedRange(start, end, step) => {
                 let mut i = 0;
                 for value in start..(end + 1) {
                     if i % step == 0 {
@@ -79,12 +81,12 @@ pub trait TimeUnitItem {
                     i += 1;
                 }
             }
-            TimeFieldValue::All => {
+            TimeFieldSpec::All => {
                 for value in Self::min()..(Self::max() + 1) {
                     container.insert(value);
                 }
             }
-            // @todo add other TimeFieldValue enum
+            // @todo add other TimeFieldSpec enum
             _ => {}
         };
         container
