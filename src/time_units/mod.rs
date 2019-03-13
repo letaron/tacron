@@ -51,10 +51,10 @@ pub trait TimeUnitItem {
     }
 
     /// Extract values for the whole field configuration
-    fn from_time_field_values(time_field_values: &Vec<TimeFieldSpec>) -> TimeFieldValuesContainer {
+    fn from_time_field_specs(time_field_specs: &Vec<TimeFieldSpec>) -> TimeFieldValuesContainer {
         let mut container = TimeFieldValuesContainer::new();
-        for time_field_value in time_field_values {
-            for value in Self::from_time_field_value(time_field_value).iter() {
+        for time_field_spec in time_field_specs {
+            for value in Self::from_time_field_spec(time_field_spec).iter() {
                 container.insert(*value);
             }
         }
@@ -63,9 +63,9 @@ pub trait TimeUnitItem {
     }
 
     /// Extract values for a unique TimeFieldSpec
-    fn from_time_field_value(time_field_value: &TimeFieldSpec) -> TimeFieldValuesContainer {
+    fn from_time_field_spec(time_field_spec: &TimeFieldSpec) -> TimeFieldValuesContainer {
         let mut container = TimeFieldValuesContainer::new();
-        match *time_field_value {
+        match *time_field_spec {
             TimeFieldSpec::Unique(value) => container.insert(value),
             TimeFieldSpec::NamedUnique(ref name) => {
                 container.insert(Self::value_from_name(&name));

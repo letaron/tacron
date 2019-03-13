@@ -98,19 +98,19 @@ fn main() {
     for tacron in tacrons {
         println!("\n{:?}", tacron);
 
-        let minutes = Minutes::from_time_field_values(&tacron.minute);
+        let minutes = Minutes::from_time_field_specs(&tacron.minute);
         println!("minutes: {:?}", minutes.iter());
 
-        let hours = Hours::from_time_field_values(&tacron.hour);
+        let hours = Hours::from_time_field_specs(&tacron.hour);
         println!("hours: {:?}", hours.iter());
 
-        let dom = DaysOfMonth::from_time_field_values(&tacron.dom);
+        let dom = DaysOfMonth::from_time_field_specs(&tacron.dom);
         println!("dom: {:?}", dom.iter());
 
-        let months = Months::from_time_field_values(&tacron.month);
+        let months = Months::from_time_field_specs(&tacron.month);
         println!("months: {:?}", months.iter());
 
-        let dow = DaysOfWeek::from_time_field_values(&tacron.dow);
+        let dow = DaysOfWeek::from_time_field_specs(&tacron.dow);
         println!("dow: {:?}", dow.iter());
     }
 
