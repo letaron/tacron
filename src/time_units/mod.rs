@@ -47,7 +47,7 @@ pub trait TimeUnitItem {
     }
 
     fn value_from_name(name: &str) -> i8 {
-        panic!("{} is not known.")
+        panic!("{} is not known.", name)
     }
 
     /// Extract values for the whole field configuration
