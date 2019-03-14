@@ -77,60 +77,40 @@ trait Reader {
     }
 }
 
-fn execute(tacrons: &Vec<TaCron>) {
-
-    let filtered = filter(tacrons);
-
-    for tacron in filtered {
-        println!("{:?}", tacron);
-    }
-
-}
-
-fn filter(tacrons: &Vec<TaCron>) -> Vec<&TaCron> {
+fn main_loop(tacrons: &Vec<TaCron>) {
     let (today, now) = (Local::today(), Local::now());
-
-    let mut filtered = Vec::new();
-
-    println!(
-        "\nThe current local datetime is: dow: {:02}, month: {:02}, dom: {:02}, hours: {:02}, minutes: {:02}",
+    let (current_dow, current_month, current_dom, current_hour, current_minute) = (
         today.weekday().num_days_from_sunday(),
         today.month(),
         today.day(),
         now.hour(),
-        now.minute()
+        now.minute(),
     );
 
-    for tacron in tacrons {
+    println!(
+        "\nThe current local datetime is: dow: {:02}, month: {:02}, dom: {:02}, hours: {:02}, minutes: {:02}",
+        current_dow, current_month, current_dom, current_hour, current_minute
+    );
+
+    let filtered = tacrons.iter().filter(|tacron| {
+        let (cron_minutes, cron_hours, cron_dom, cron_months, cron_dow) = (
+            Minutes::from_time_field_specs(&tacron.minute),
+            Hours::from_time_field_specs(&tacron.hour),
+            DaysOfMonth::from_time_field_specs(&tacron.dom),
+            Months::from_time_field_specs(&tacron.month),
+            DaysOfWeek::from_time_field_specs(&tacron.dow),
+        );
+
+        cron_dow.contains(&(current_dow as i8))
+            && cron_months.contains(&(current_month as i8))
+            && cron_dom.contains(&(current_dom as i8))
+            && cron_hours.contains(&(current_hour as i8))
+            && cron_minutes.contains(&(current_minute as i8))
+    });
+
+    for tacron in filtered {
         println!("{:?}", tacron);
-
-        let minutes = Minutes::from_time_field_specs(&tacron.minute);
-        let hours = Hours::from_time_field_specs(&tacron.hour);
-        let dom = DaysOfMonth::from_time_field_specs(&tacron.dom);
-        let months = Months::from_time_field_specs(&tacron.month);
-        let dow = DaysOfWeek::from_time_field_specs(&tacron.dow);
-
-        // println!("minutes: {:?}", minutes.iter());
-        // println!("hours: {:?}", hours.iter());
-        // println!("dom: {:?}", dom.iter());
-        // println!("months: {:?}", months.iter());
-        // println!("dow: {:?}", dow.iter());
-
-        if !dow.contains(&(today.weekday().num_days_from_sunday() as i8))
-            || !months.contains(&(today.month() as i8))
-            || !dom.contains(&(today.day() as i8))
-            || !hours.contains(&(now.hour() as i8))
-            || !minutes.contains(&(now.minute() as i8))
-        {
-            continue;
-        }
-
-        filtered.push(tacron);
-
-        println!("exec {:?}", tacron.command);
     }
-
-    filtered
 }
 
 fn main() {
@@ -140,7 +120,7 @@ fn main() {
     let main_loop_handler = thread::Builder::new()
         .name("main loop".into())
         .spawn(move || loop {
-            execute(&tacrons);
+            main_loop(&tacrons);
             thread::sleep(time::Duration::from_millis(10000));
         })
         .unwrap();
