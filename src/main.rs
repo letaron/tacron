@@ -78,10 +78,22 @@ trait Reader {
 }
 
 fn execute(tacrons: &Vec<TaCron>) {
+
+    let filtered = filter(tacrons);
+
+    for tacron in filtered {
+        println!("{:?}", tacron);
+    }
+
+}
+
+fn filter(tacrons: &Vec<TaCron>) -> Vec<&TaCron> {
     let (today, now) = (Local::today(), Local::now());
 
+    let mut filtered = Vec::new();
+
     println!(
-        "The current Local time is dow: {:02}, month: {:02}, dom: {:02}, hours: {:02}, minutes: {:02}",
+        "\nThe current local datetime is: dow: {:02}, month: {:02}, dom: {:02}, hours: {:02}, minutes: {:02}",
         today.weekday().num_days_from_sunday(),
         today.month(),
         today.day(),
@@ -90,23 +102,35 @@ fn execute(tacrons: &Vec<TaCron>) {
     );
 
     for tacron in tacrons {
-        println!("\n{:?}", tacron);
+        println!("{:?}", tacron);
 
         let minutes = Minutes::from_time_field_specs(&tacron.minute);
-        // println!("minutes: {:?}", minutes.iter());
-
         let hours = Hours::from_time_field_specs(&tacron.hour);
-        // println!("hours: {:?}", hours.iter());
-
         let dom = DaysOfMonth::from_time_field_specs(&tacron.dom);
-        // println!("dom: {:?}", dom.iter());
-
         let months = Months::from_time_field_specs(&tacron.month);
-        // println!("months: {:?}", months.iter());
-
         let dow = DaysOfWeek::from_time_field_specs(&tacron.dow);
+
+        // println!("minutes: {:?}", minutes.iter());
+        // println!("hours: {:?}", hours.iter());
+        // println!("dom: {:?}", dom.iter());
+        // println!("months: {:?}", months.iter());
         // println!("dow: {:?}", dow.iter());
+
+        if !dow.contains(&(today.weekday().num_days_from_sunday() as i8))
+            || !months.contains(&(today.month() as i8))
+            || !dom.contains(&(today.day() as i8))
+            || !hours.contains(&(now.hour() as i8))
+            || !minutes.contains(&(now.minute() as i8))
+        {
+            continue;
+        }
+
+        filtered.push(tacron);
+
+        println!("exec {:?}", tacron.command);
     }
+
+    filtered
 }
 
 fn main() {

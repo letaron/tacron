@@ -105,6 +105,6 @@ pub fn parse(ta_cron: &RawCron) -> TaCron {
         month: parse_field(&ta_cron.month, &named_handlers),
         dow: parse_field(&ta_cron.dow, &named_handlers),
         command: ta_cron.command.clone(),
-        source: ta_cron.source.clone()
+        source: ta_cron.source.clone(),
     }
 }
