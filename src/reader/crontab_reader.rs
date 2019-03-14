@@ -47,13 +47,13 @@ impl Reader for CrontabReader {
             }
 
             tasks.push(RawCron::new(
-                times_specs[0],
-                times_specs[1],
-                times_specs[2],
-                times_specs[3],
-                times_specs[4],
-                &cron[command_index..].join(" "),
-                &self.file,
+                times_specs[0].to_string(),
+                times_specs[1].to_string(),
+                times_specs[2].to_string(),
+                times_specs[3].to_string(),
+                times_specs[4].to_string(),
+                cron[command_index..].join(" ").to_string(),
+                self.file.to_string(),
             ));
         }
 
