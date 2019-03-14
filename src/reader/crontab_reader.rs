@@ -68,9 +68,9 @@ mod tests {
 
     #[test]
     fn it_reads() {
-        let origin = "fixtures/crontab";
+        let source = "fixtures/crontab";
         let reader = CrontabReader {
-            file: origin.to_string(),
+            file: source.to_string(),
         };
 
         let tasks = reader.read();
@@ -82,8 +82,8 @@ mod tests {
         assert_eq!(task.dom, "2");
         assert_eq!(task.month, "*");
         assert_eq!(task.dow, "*");
-        assert_eq!(task.action, "/foo/bar");
-        assert_eq!(task.origin, origin);
+        assert_eq!(task.command, "/foo/bar");
+        assert_eq!(task.source, source);
 
         let task = &tasks[1];
         assert_eq!(task.minute, "1");
@@ -91,7 +91,7 @@ mod tests {
         assert_eq!(task.dom, "3,4");
         assert_eq!(task.month, "4");
         assert_eq!(task.dow, "5");
-        assert_eq!(task.action, "baz \"foo\" 2>&1");
-        assert_eq!(task.origin, origin);
+        assert_eq!(task.command, "baz \"foo\" 2>&1");
+        assert_eq!(task.source, source);
     }
 }
