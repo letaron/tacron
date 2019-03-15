@@ -1,7 +1,7 @@
 extern crate chrono;
 mod reader;
 mod time_units;
-use chrono::{Datelike, Local, Timelike};
+use chrono::{Date, DateTime, Datelike, Local, Timelike};
 use reader::crontab_reader::CrontabReader;
 use reader::parse;
 use std::thread;
@@ -77,8 +77,9 @@ trait Reader {
     }
 }
 
-fn main_loop(tacrons: &Vec<TaCron>) {
-    let (today, now) = (Local::today(), Local::now());
+fn filter_tacrons(
+    tacrons: &Vec<TaCron>, today: Date<Local>, now: DateTime<Local>,
+) -> impl Iterator<Item = &TaCron> {
     let (current_dow, current_month, current_dom, current_hour, current_minute) = (
         today.weekday().num_days_from_sunday(),
         today.month(),
@@ -88,11 +89,11 @@ fn main_loop(tacrons: &Vec<TaCron>) {
     );
 
     println!(
-        "\nThe current local datetime is: dow: {:02}, month: {:02}, dom: {:02}, hours: {:02}, minutes: {:02}",
+        "\nCurrent dow: {:02}, month: {:02}, dom: {:02}, hours: {:02}, minutes: {:02}",
         current_dow, current_month, current_dom, current_hour, current_minute
     );
 
-    let filtered = tacrons.iter().filter(|tacron| {
+    tacrons.iter().filter(move |tacron| {
         let (cron_minutes, cron_hours, cron_dom, cron_months, cron_dow) = (
             Minutes::from_time_field_specs(&tacron.minute),
             Hours::from_time_field_specs(&tacron.hour),
@@ -106,10 +107,19 @@ fn main_loop(tacrons: &Vec<TaCron>) {
             && cron_dom.contains(&(current_dom as i8))
             && cron_hours.contains(&(current_hour as i8))
             && cron_minutes.contains(&(current_minute as i8))
-    });
+    })
+}
 
-    for tacron in filtered {
-        println!("{:?}", tacron);
+fn main_loop(tacrons: &Vec<TaCron>) {
+    loop {
+        let (today, now) = (Local::today(), Local::now());
+        let filtered = filter_tacrons(tacrons, today, now);
+
+        for tacron in filtered {
+            println!("{:?}", tacron);
+        }
+        
+        thread::sleep(time::Duration::from_millis(10000));
     }
 }
 
@@ -119,10 +129,7 @@ fn main() {
 
     let main_loop_handler = thread::Builder::new()
         .name("main loop".into())
-        .spawn(move || loop {
-            main_loop(&tacrons);
-            thread::sleep(time::Duration::from_millis(10000));
-        })
+        .spawn(move || main_loop(&tacrons))
         .unwrap();
 
     main_loop_handler.join().unwrap();
