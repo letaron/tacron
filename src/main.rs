@@ -4,6 +4,8 @@ mod time_units;
 use chrono::{Date, DateTime, Datelike, Local, Timelike};
 use reader::crontab_reader::CrontabReader;
 use reader::parse;
+// use std::io::{self, Write};
+use std::process::Command;
 use std::thread;
 use std::time;
 use time_units::days_of_month::DaysOfMonth;
@@ -116,11 +118,31 @@ fn main_loop(tacrons: &Vec<TaCron>) {
         let filtered = filter_tacrons(tacrons, today, now);
 
         for tacron in filtered {
-            println!("{:?}", tacron);
+            println!("Will execute {:?}", tacron);
+            exec_command(tacron.command.clone())
         }
-        
+
         thread::sleep(time::Duration::from_millis(10000));
     }
+}
+
+fn exec_command(command: String) {
+    thread::Builder::new()
+        .spawn(|| {
+            // dirty trick to execute the command
+            // otherwise we need to parse the command line to distinguate command form args
+            // ie. Command::new("sleep 10") will not work as it look out for a command named "sleep 10"
+            let _output = Command::new("sh")
+                .arg("-c")
+                .arg(command)
+                .output()
+                .expect("failed to execute process");
+
+            // println!("status: {}", output.status);
+            // io::stdout().write_all(&output.stdout).unwrap();
+            // io::stderr().write_all(&output.stderr).unwrap();
+        })
+        .unwrap();
 }
 
 fn main() {
