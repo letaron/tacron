@@ -95,11 +95,17 @@ fn exec_command(command: String) {
 fn main() {
     let reader = CrontabReader::new("fixtures/crontab".to_string());
     let tacrons = reader.tacrons();
-    let boxed_reader: Box<Reader + Sync + Send> = Box::new(reader);
-
-    let shared_reader = Arc::new(Mutex::new(boxed_reader));
     let shared_tacrons = Arc::new(RwLock::new(tacrons));
     let sig_tacrons = Arc::clone(&shared_tacrons);
+
+    add_sighup_handler(Box::new(reader), sig_tacrons);
+    main_loop(shared_tacrons);
+}
+
+fn add_sighup_handler(
+    boxed_reader: Box<Reader + Sync + Send>, sig_tacrons: Arc<RwLock<Vec<TaCron>>>,
+) {
+    let shared_reader = Arc::new(Mutex::new(boxed_reader));
 
     let _signal = unsafe {
         signal_hook::register(signal_hook::SIGHUP, move || {
@@ -112,8 +118,6 @@ fn main() {
             }
         })
     };
-
-    main_loop(shared_tacrons);
 }
 
 fn main_loop(shared_tacrons: Arc<RwLock<Vec<TaCron>>>) {
