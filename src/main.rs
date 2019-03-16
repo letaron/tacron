@@ -93,29 +93,42 @@ fn exec_command(command: String) {
 }
 
 fn main() {
-    let reader = CrontabReader::new("fixtures/crontab".to_string());
-    let tacrons = reader.tacrons();
+    let mut readers: Vec<Box<Reader + Sync + Send>> = Vec::new();
+    let mut tacrons: Vec<TaCron> = Vec::new();
+
+    readers.push(Box::new(CrontabReader::new("fixtures/crontab".to_string())));
+    readers.push(Box::new(CrontabReader::new(
+        "fixtures/another_crontab".to_string(),
+    )));
+
+    for reader in &readers {
+        let mut reader_tacrons = reader.tacrons();
+        tacrons.append(&mut reader_tacrons)
+    }
+
     let shared_tacrons = Arc::new(RwLock::new(tacrons));
 
-    add_sighup_handler(Box::new(reader), Arc::clone(&shared_tacrons));
+    add_sighup_handler(readers, Arc::clone(&shared_tacrons));
     main_loop(shared_tacrons);
 }
 
 /// This function refresh the tacrons on SIGHUP
-fn add_sighup_handler(reader: Box<Reader + Sync + Send>, tacrons: Arc<RwLock<Vec<TaCron>>>) {
+fn add_sighup_handler(readers: Vec<Box<Reader + Sync + Send>>, tacrons: Arc<RwLock<Vec<TaCron>>>) {
     // signal_hook::register create a thread; reader need to be shared
-    let shared_reader = Arc::new(Mutex::new(reader));
+    let shared_reader = Arc::new(Mutex::new(readers));
 
     let _signal = unsafe {
         signal_hook::register(signal_hook::SIGHUP, move || {
             println!("SIGHUP received, refreshing tacrons...");
-            let local_reader = shared_reader.lock().unwrap();
+            let local_readers = shared_reader.lock().unwrap();
             let mut local_tacrons = tacrons.write().unwrap();
 
-            // @todo replace "as a ref" maybe, but may lead to memory leak ?
             local_tacrons.clear();
-            for tacron in local_reader.tacrons() {
-                local_tacrons.push(tacron);
+            for local_reader in local_readers.iter() {
+                // @todo replace "as a ref" maybe, but may lead to memory leak ?
+                for tacron in local_reader.tacrons() {
+                    local_tacrons.push(tacron);
+                }
             }
         })
     };
@@ -135,7 +148,7 @@ fn main_loop(tacrons: Arc<RwLock<Vec<TaCron>>>) {
                 }
             }
 
-            thread::sleep(time::Duration::from_millis(10000));
+            thread::sleep(time::Duration::from_millis(5000));
         })
         .unwrap();
 
