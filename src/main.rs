@@ -3,7 +3,7 @@ mod reader;
 mod time_units;
 use chrono::{Date, DateTime, Datelike, Local, Timelike};
 use reader::crontab_reader::CrontabReader;
-use reader::parse;
+use reader::Reader;
 // use std::io::{self, Write};
 // use std::process::Command;
 use std::thread;
@@ -14,18 +14,6 @@ use time_units::hours::Hours;
 use time_units::minutes::Minutes;
 use time_units::months::Months;
 use time_units::TimeUnitItem;
-
-// Represent a not-yet parsed line of a crontab
-#[derive(Debug)]
-pub struct RawCron {
-    minute: String,
-    hour: String,
-    dom: String,
-    month: String,
-    dow: String,
-    command: String,
-    source: String,
-}
 
 #[derive(Debug)]
 pub enum TimeFieldSpec {
@@ -47,36 +35,6 @@ pub struct TaCron {
     pub dow: Vec<TimeFieldSpec>,
     pub command: String,
     pub source: String,
-}
-
-impl RawCron {
-    fn new(
-        minute: String, hour: String, dom: String, month: String, dow: String, command: String,
-        source: String,
-    ) -> RawCron {
-        RawCron {
-            minute,
-            hour,
-            dom,
-            month,
-            dow,
-            command,
-            source,
-        }
-    }
-}
-
-trait Reader {
-    fn read(&self) -> Vec<RawCron>;
-
-    fn tacrons(&self) -> Vec<TaCron> {
-        let raw_crons = self.read();
-        let mut tacrons = Vec::new();
-        for raw_cron in raw_crons {
-            tacrons.push(parse(&raw_cron));
-        }
-        tacrons
-    }
 }
 
 fn filter_tacrons(

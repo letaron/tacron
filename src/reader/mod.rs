@@ -1,6 +1,48 @@
 pub mod crontab_reader;
-use crate::{RawCron, TaCron, TimeFieldSpec};
+use crate::{TaCron, TimeFieldSpec};
 use regex::{Captures, Regex};
+
+pub trait Reader {
+    fn read(&self) -> Vec<RawCron>;
+
+    fn tacrons(&self) -> Vec<TaCron> {
+        let raw_crons = self.read();
+        let mut tacrons = Vec::new();
+        for raw_cron in raw_crons {
+            tacrons.push(parse(&raw_cron));
+        }
+        tacrons
+    }
+}
+
+// Represent a not-yet parsed line of a crontab
+#[derive(Debug)]
+pub struct RawCron {
+    minute: String,
+    hour: String,
+    dom: String,
+    month: String,
+    dow: String,
+    command: String,
+    source: String,
+}
+
+impl RawCron {
+    fn new(
+        minute: String, hour: String, dom: String, month: String, dow: String, command: String,
+        source: String,
+    ) -> RawCron {
+        RawCron {
+            minute,
+            hour,
+            dom,
+            month,
+            dow,
+            command,
+            source,
+        }
+    }
+}
 
 // If regex match, return the result of function "f"
 struct FieldHandler {
