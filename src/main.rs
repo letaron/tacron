@@ -67,7 +67,29 @@ fn filter_tacrons(
     })
 }
 
-fn main_loop() {
+fn exec_command(command: String) {
+    println!("Would have executed: {}", command);
+    /*
+    thread::Builder::new()
+        .spawn(|| {
+            // dirty trick to execute the command
+            // otherwise we need to parse the command line to distinguate command form args
+            // ie. Command::new("sleep 10") will not work as it look out for a command named "sleep 10"
+            let _output = Command::new("sh")
+                .arg("-c")
+                .arg(command)
+                .output()
+                .expect("failed to execute process");
+
+            // println!("status: {}", output.status);
+            // io::stdout().write_all(&output.stdout).unwrap();
+            // io::stderr().write_all(&output.stderr).unwrap();
+        })
+        .unwrap();
+        */
+}
+
+fn main() {
     let reader = CrontabReader::new("fixtures/crontab".to_string());
     let tacrons = reader.tacrons();
     let boxed_reader: Box<Reader + Sync + Send> = Box::new(reader);
@@ -78,7 +100,7 @@ fn main_loop() {
 
     let _signal = unsafe {
         signal_hook::register(signal_hook::SIGHUP, move || {
-            println!("SIGHUP catched, rereshing tacrons from reader");
+            println!("SIGHUP received, refreshing tacrons...");
             let local_reader = shared_reader.read().unwrap();
             let mut local_tacrons = sig_tacrons.write().unwrap();
             local_tacrons.clear();
@@ -110,28 +132,3 @@ fn main_loop() {
     main_loop_handler.join().unwrap();
 }
 
-fn exec_command(command: String) {
-    println!("Would have executed: {}", command);
-    /*
-    thread::Builder::new()
-        .spawn(|| {
-            // dirty trick to execute the command
-            // otherwise we need to parse the command line to distinguate command form args
-            // ie. Command::new("sleep 10") will not work as it look out for a command named "sleep 10"
-            let _output = Command::new("sh")
-                .arg("-c")
-                .arg(command)
-                .output()
-                .expect("failed to execute process");
-
-            // println!("status: {}", output.status);
-            // io::stdout().write_all(&output.stdout).unwrap();
-            // io::stderr().write_all(&output.stderr).unwrap();
-        })
-        .unwrap();
-        */
-}
-
-fn main() {
-    main_loop();
-}
