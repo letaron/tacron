@@ -5,7 +5,7 @@ use chrono::{Date, DateTime, Datelike, Local, Timelike};
 use reader::crontab_reader::CrontabReader;
 use reader::parse;
 // use std::io::{self, Write};
-use std::process::Command;
+// use std::process::Command;
 use std::thread;
 use std::time;
 use time_units::days_of_month::DaysOfMonth;
@@ -118,7 +118,7 @@ fn main_loop(tacrons: &Vec<TaCron>) {
         let filtered = filter_tacrons(tacrons, today, now);
 
         for tacron in filtered {
-            println!("Will execute {:?}", tacron);
+            // println!("Will execute {:?}", tacron);
             exec_command(tacron.command.clone())
         }
 
@@ -127,6 +127,8 @@ fn main_loop(tacrons: &Vec<TaCron>) {
 }
 
 fn exec_command(command: String) {
+    println!("Would have executed: {}", command);
+    /*
     thread::Builder::new()
         .spawn(|| {
             // dirty trick to execute the command
@@ -143,6 +145,7 @@ fn exec_command(command: String) {
             // io::stderr().write_all(&output.stderr).unwrap();
         })
         .unwrap();
+        */
 }
 
 fn main() {
