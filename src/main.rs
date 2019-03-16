@@ -77,21 +77,16 @@ fn main_loop(reader: &Reader) {
     let boxed_reader: Box<Reader + Sync + Send> = Box::new(CrontabReader::new("fixtures/crontab".to_string()));
     let shared_reader = Arc::new(RwLock::new(boxed_reader));
 
-    let tacrons = reader.tacrons();
-    let shared_tacrons = Arc::new(RwLock::new(tacrons));
+    let shared_tacrons = Arc::new(RwLock::new(reader.tacrons()));
     let sig_tacrons = Arc::clone(&shared_tacrons);
-    let ml_tacrons = Arc::clone(&shared_tacrons);
 
     let _signal = unsafe {
         signal_hook::register(signal_hook::SIGHUP, move || {
             println!("SIGHUP catched, rereshing tacrons from reader");
             let local_reader = shared_reader.read().unwrap();
-            println!("local_reader ok");
             let mut local_tacrons = sig_tacrons.write().unwrap();
-            println!("on nettoie");
             local_tacrons.clear();
             for tacron in local_reader.tacrons() {
-                println!("on push");
                 local_tacrons.push(tacron);
             }
         })
@@ -101,14 +96,14 @@ fn main_loop(reader: &Reader) {
         .name("main loop".into())
         .spawn(move || {
             loop {
-                let (today, now) = (Local::today(), Local::now());
-                let local_tacrons = ml_tacrons.read().unwrap();
-                println!("oyoyo");
-                let filtered = filter_tacrons(&local_tacrons, today, now);
+                {
+                    let (today, now) = (Local::today(), Local::now());
+                    let local_tacrons = shared_tacrons.read().unwrap();
+                    let filtered = filter_tacrons(&local_tacrons, today, now);
 
-                for tacron in filtered {
-                    // println!("Will execute {:?}", tacron);
-                    exec_command(tacron.command.clone())
+                    for tacron in filtered {
+                        exec_command(tacron.command.clone())
+                    }
                 }
 
                 thread::sleep(time::Duration::from_millis(10000));
