@@ -96,22 +96,19 @@ fn main() {
     let reader = CrontabReader::new("fixtures/crontab".to_string());
     let tacrons = reader.tacrons();
     let shared_tacrons = Arc::new(RwLock::new(tacrons));
-    let sig_tacrons = Arc::clone(&shared_tacrons);
 
-    add_sighup_handler(Box::new(reader), sig_tacrons);
+    add_sighup_handler(Box::new(reader), Arc::clone(&shared_tacrons));
     main_loop(shared_tacrons);
 }
 
-fn add_sighup_handler(
-    boxed_reader: Box<Reader + Sync + Send>, sig_tacrons: Arc<RwLock<Vec<TaCron>>>,
-) {
-    let shared_reader = Arc::new(Mutex::new(boxed_reader));
+fn add_sighup_handler(reader: Box<Reader + Sync + Send>, tacrons: Arc<RwLock<Vec<TaCron>>>) {
+    let shared_reader = Arc::new(Mutex::new(reader));
 
     let _signal = unsafe {
         signal_hook::register(signal_hook::SIGHUP, move || {
             println!("SIGHUP received, refreshing tacrons...");
             let local_reader = shared_reader.lock().unwrap();
-            let mut local_tacrons = sig_tacrons.write().unwrap();
+            let mut local_tacrons = tacrons.write().unwrap();
             local_tacrons.clear();
             for tacron in local_reader.tacrons() {
                 local_tacrons.push(tacron);
@@ -120,13 +117,13 @@ fn add_sighup_handler(
     };
 }
 
-fn main_loop(shared_tacrons: Arc<RwLock<Vec<TaCron>>>) {
+fn main_loop(tacrons: Arc<RwLock<Vec<TaCron>>>) {
     let main_loop_handler = thread::Builder::new()
         .name("main loop".into())
         .spawn(move || loop {
             {
                 let (today, now) = (Local::today(), Local::now());
-                let local_tacrons = shared_tacrons.read().unwrap();
+                let local_tacrons = tacrons.read().unwrap();
                 let filtered = filter_tacrons(&local_tacrons, today, now);
 
                 for tacron in filtered {
