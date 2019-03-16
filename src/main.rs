@@ -4,7 +4,10 @@ mod reader;
 mod time_units;
 use chrono::{Date, DateTime, Datelike, Local, Timelike};
 use reader::{crontab_reader::CrontabReader, Reader};
-use std::{sync::{Arc, RwLock}, thread, time};
+use std::{
+    sync::{Arc, RwLock},
+    thread, time,
+};
 use time_units::days_of_month::DaysOfMonth;
 use time_units::days_of_week::DaysOfWeek;
 use time_units::hours::Hours;
@@ -93,8 +96,8 @@ fn main() {
     let reader = CrontabReader::new("fixtures/crontab".to_string());
     let tacrons = reader.tacrons();
     let boxed_reader: Box<Reader + Sync + Send> = Box::new(reader);
-    let shared_reader = Arc::new(RwLock::new(boxed_reader));
 
+    let shared_reader = Arc::new(RwLock::new(boxed_reader));
     let shared_tacrons = Arc::new(RwLock::new(tacrons));
     let sig_tacrons = Arc::clone(&shared_tacrons);
 
@@ -110,25 +113,26 @@ fn main() {
         })
     };
 
+    main_loop(shared_tacrons);
+}
+
+fn main_loop(shared_tacrons: Arc<RwLock<Vec<TaCron>>>) {
     let main_loop_handler = thread::Builder::new()
         .name("main loop".into())
-        .spawn(move || {
-            loop {
-                {
-                    let (today, now) = (Local::today(), Local::now());
-                    let local_tacrons = shared_tacrons.read().unwrap();
-                    let filtered = filter_tacrons(&local_tacrons, today, now);
+        .spawn(move || loop {
+            {
+                let (today, now) = (Local::today(), Local::now());
+                let local_tacrons = shared_tacrons.read().unwrap();
+                let filtered = filter_tacrons(&local_tacrons, today, now);
 
-                    for tacron in filtered {
-                        exec_command(tacron.command.clone())
-                    }
+                for tacron in filtered {
+                    exec_command(tacron.command.clone())
                 }
-
-                thread::sleep(time::Duration::from_millis(10000));
             }
+
+            thread::sleep(time::Duration::from_millis(10000));
         })
         .unwrap();
 
     main_loop_handler.join().unwrap();
 }
-
