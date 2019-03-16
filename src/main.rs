@@ -1,4 +1,5 @@
 extern crate chrono;
+extern crate signal_hook;
 mod reader;
 mod time_units;
 use chrono::{Date, DateTime, Datelike, Local, Timelike};
@@ -6,6 +7,8 @@ use reader::crontab_reader::CrontabReader;
 use reader::Reader;
 // use std::io::{self, Write};
 // use std::process::Command;
+use std::sync::mpsc;
+use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time;
 use time_units::days_of_month::DaysOfMonth;
@@ -70,10 +73,19 @@ fn filter_tacrons(
     })
 }
 
-fn main_loop(tacrons: &Vec<TaCron>) {
+fn main_loop(reader: &Reader, receiver: mpsc::Receiver<&str>) {
+    let mut tacrons = reader.tacrons();
+
     loop {
+        match receiver.try_recv() {
+            Ok(_) => {
+                tacrons = reader.tacrons();
+            }
+            Err(_) => {}
+        };
+
         let (today, now) = (Local::today(), Local::now());
-        let filtered = filter_tacrons(tacrons, today, now);
+        let filtered = filter_tacrons(&tacrons, today, now);
 
         for tacron in filtered {
             // println!("Will execute {:?}", tacron);
@@ -108,11 +120,22 @@ fn exec_command(command: String) {
 
 fn main() {
     let reader = CrontabReader::new("fixtures/crontab".to_string());
-    let tacrons = reader.tacrons();
+
+    let (tx, rx) = mpsc::channel();
+    let tx_thread = Arc::new(Mutex::new(tx));
+
+    let _signal = unsafe {
+        signal_hook::register(signal_hook::SIGHUP, move || {
+            println!("SIGHUP catched, sending refresh message...");
+
+            let tx = tx_thread.lock().unwrap();
+            tx.send("refresh").unwrap();
+        })
+    };
 
     let main_loop_handler = thread::Builder::new()
         .name("main loop".into())
-        .spawn(move || main_loop(&tacrons))
+        .spawn(move || main_loop(&reader, rx))
         .unwrap();
 
     main_loop_handler.join().unwrap();
