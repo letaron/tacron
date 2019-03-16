@@ -5,7 +5,7 @@ mod time_units;
 use chrono::{Date, DateTime, Datelike, Local, Timelike};
 use reader::{crontab_reader::CrontabReader, Reader};
 use std::{
-    sync::{Arc, RwLock},
+    sync::{Arc, Mutex, RwLock},
     thread, time,
 };
 use time_units::days_of_month::DaysOfMonth;
@@ -97,14 +97,14 @@ fn main() {
     let tacrons = reader.tacrons();
     let boxed_reader: Box<Reader + Sync + Send> = Box::new(reader);
 
-    let shared_reader = Arc::new(RwLock::new(boxed_reader));
+    let shared_reader = Arc::new(Mutex::new(boxed_reader));
     let shared_tacrons = Arc::new(RwLock::new(tacrons));
     let sig_tacrons = Arc::clone(&shared_tacrons);
 
     let _signal = unsafe {
         signal_hook::register(signal_hook::SIGHUP, move || {
             println!("SIGHUP received, refreshing tacrons...");
-            let local_reader = shared_reader.read().unwrap();
+            let local_reader = shared_reader.lock().unwrap();
             let mut local_tacrons = sig_tacrons.write().unwrap();
             local_tacrons.clear();
             for tacron in local_reader.tacrons() {
