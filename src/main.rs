@@ -73,11 +73,13 @@ fn filter_tacrons(
     })
 }
 
-fn main_loop(reader: &Reader) {
-    let boxed_reader: Box<Reader + Sync + Send> = Box::new(CrontabReader::new("fixtures/crontab".to_string()));
+fn main_loop() {
+    let reader = CrontabReader::new("fixtures/crontab".to_string());
+    let tacrons = reader.tacrons();
+    let boxed_reader: Box<Reader + Sync + Send> = Box::new(reader);
     let shared_reader = Arc::new(RwLock::new(boxed_reader));
 
-    let shared_tacrons = Arc::new(RwLock::new(reader.tacrons()));
+    let shared_tacrons = Arc::new(RwLock::new(tacrons));
     let sig_tacrons = Arc::clone(&shared_tacrons);
 
     let _signal = unsafe {
@@ -137,7 +139,5 @@ fn exec_command(command: String) {
 }
 
 fn main() {
-    let reader = CrontabReader::new("fixtures/crontab".to_string());
-
-    main_loop(&reader);
+    main_loop();
 }
