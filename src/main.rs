@@ -1,13 +1,16 @@
 extern crate chrono;
+extern crate config;
 extern crate signal_hook;
 
 mod filter;
 mod reader;
+mod settings;
 mod time_units;
 
 use chrono::Local;
 use filter::filter_tacrons;
-use reader::{crontab_reader::CrontabReader, Reader};
+use reader::{get_crontabs_readers, Reader};
+use settings::get_settings;
 use std::{
     sync::{Arc, Mutex, RwLock},
     thread, time,
@@ -61,10 +64,8 @@ fn main() {
     let mut readers: Vec<Box<Reader + Sync + Send>> = Vec::new();
     let mut tacrons: Vec<TaCron> = Vec::new();
 
-    readers.push(Box::new(CrontabReader::new("fixtures/crontab".to_string())));
-    readers.push(Box::new(CrontabReader::new(
-        "fixtures/another_crontab".to_string(),
-    )));
+    let settings = get_settings();
+    get_crontabs_readers(&mut readers, settings.get("crontabs").unwrap());
 
     for reader in &readers {
         let mut reader_tacrons = reader.tacrons();
@@ -84,7 +85,7 @@ fn add_sighup_handler(readers: Vec<Box<Reader + Sync + Send>>, tacrons: Arc<RwLo
 
     let _signal = unsafe {
         signal_hook::register(signal_hook::SIGHUP, move || {
-            println!("SIGHUP received, refreshing tacrons...");
+            println!("[SIGHUP] received, refreshing tacrons...");
             let local_readers = shared_reader.lock().unwrap();
             let mut local_tacrons = tacrons.write().unwrap();
 
@@ -97,6 +98,8 @@ fn add_sighup_handler(readers: Vec<Box<Reader + Sync + Send>>, tacrons: Arc<RwLo
             }
         })
     };
+
+    println!("[SIGHUP] registered");
 }
 
 fn main_loop(tacrons: Arc<RwLock<Vec<TaCron>>>) {

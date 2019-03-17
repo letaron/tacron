@@ -1,5 +1,6 @@
 pub mod crontab_reader;
 use crate::{TaCron, TimeFieldSpec};
+use crontab_reader::CrontabReader;
 use regex::{Captures, Regex};
 
 pub trait Reader {
@@ -12,6 +13,13 @@ pub trait Reader {
             tacrons.push(parse(&raw_cron));
         }
         tacrons
+    }
+}
+
+pub fn get_crontabs_readers(readers: &mut Vec<Box<Reader + Sync + Send>>, crontabs: &Vec<String>) {
+    for crontab in crontabs {
+        println!("[CRONTAB] loading {:?}", crontab);
+        readers.push(Box::new(CrontabReader::new(crontab.to_string())));
     }
 }
 
