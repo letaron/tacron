@@ -74,16 +74,22 @@ fn main() {
     main_loop(shared_tacrons);
 }
 
-/// This function refresh the tacrons on SIGHUP
+/// This function refresh the readers & tacrons on SIGHUP
 fn add_sighup_handler(readers: Vec<Box<Reader + Sync + Send>>, tacrons: Arc<RwLock<Vec<TaCron>>>) {
     // signal_hook::register create a thread; reader need to be shared
     let shared_reader = Arc::new(Mutex::new(readers));
 
     let _signal = unsafe {
         signal_hook::register(signal_hook::SIGHUP, move || {
-            println!("[SIGHUP] received, refreshing tacrons...");
-            let local_readers = shared_reader.lock().unwrap();
+            println!("[SIGHUP] received, refreshing...");
+            let mut local_readers = shared_reader.lock().unwrap();
             let mut local_tacrons = tacrons.write().unwrap();
+
+            // @todo try to replace directly the ref but may lead to mem leaks maybe
+            local_readers.clear();
+            let settings = get_settings();
+            let mut readers = get_readers(&settings);
+            local_readers.append(&mut readers);
 
             // @todo try to replace directly the ref but may lead to mem leaks maybe
             local_tacrons.clear();
