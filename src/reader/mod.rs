@@ -106,7 +106,7 @@ fn parse(ta_cron: &RawCron) -> TaCron {
     let unique_handler = FieldHandler {
         regex: Regex::new("^([0-9]+)$").unwrap(),
         f: |capture: Captures| {
-            TimeFieldSpec::Unique(capture.get(1).unwrap().as_str().parse::<i8>().unwrap())
+            TimeFieldSpec::Unique(capture.get(1).unwrap().as_str().parse::<u8>().unwrap())
         },
     };
 
@@ -114,8 +114,8 @@ fn parse(ta_cron: &RawCron) -> TaCron {
         regex: Regex::new("^([0-9]+)-([0-9]+)$").unwrap(),
         f: |capture: Captures| {
             TimeFieldSpec::Range(
-                capture.get(1).unwrap().as_str().parse::<i8>().unwrap(),
-                capture.get(2).unwrap().as_str().parse::<i8>().unwrap(),
+                capture.get(1).unwrap().as_str().parse::<u8>().unwrap(),
+                capture.get(2).unwrap().as_str().parse::<u8>().unwrap(),
             )
         },
     };
@@ -123,7 +123,7 @@ fn parse(ta_cron: &RawCron) -> TaCron {
     let step_handler = FieldHandler {
         regex: Regex::new(r"^\*/([0-9]+)$").unwrap(),
         f: |capture: Captures| {
-            TimeFieldSpec::Step(capture.get(1).unwrap().as_str().parse::<i8>().unwrap())
+            TimeFieldSpec::Step(capture.get(1).unwrap().as_str().parse::<u8>().unwrap())
         },
     };
 
@@ -131,9 +131,9 @@ fn parse(ta_cron: &RawCron) -> TaCron {
         regex: Regex::new("^([0-9]+)-([0-9]+)/([0-9]+)$").unwrap(),
         f: |capture: Captures| {
             TimeFieldSpec::SteppedRange(
-                capture.get(1).unwrap().as_str().parse::<i8>().unwrap(),
-                capture.get(2).unwrap().as_str().parse::<i8>().unwrap(),
-                capture.get(3).unwrap().as_str().parse::<i8>().unwrap(),
+                capture.get(1).unwrap().as_str().parse::<u8>().unwrap(),
+                capture.get(2).unwrap().as_str().parse::<u8>().unwrap(),
+                capture.get(3).unwrap().as_str().parse::<u8>().unwrap(),
             )
         },
     };

@@ -7,11 +7,11 @@ impl TimeUnitItem for DaysOfMonth {
         "days of month"
     }
 
-    fn min() -> i8 {
+    fn min() -> u8 {
         1
     }
 
-    fn max() -> i8 {
+    fn max() -> u8 {
         31
     }
 }

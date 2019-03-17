@@ -7,15 +7,15 @@ impl TimeUnitItem for Months {
         "months"
     }
 
-    fn min() -> i8 {
+    fn min() -> u8 {
         1
     }
 
-    fn max() -> i8 {
+    fn max() -> u8 {
         12
     }
 
-    fn value_from_name(name: &str) -> i8 {
+    fn value_from_name(name: &str) -> u8 {
         match name {
             "jan" | "january" => 1,
             "feb" | "february" => 2,

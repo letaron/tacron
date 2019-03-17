@@ -7,11 +7,11 @@ impl TimeUnitItem for Minutes {
         "minutes"
     }
 
-    fn min() -> i8 {
+    fn min() -> u8 {
         0
     }
 
-    fn max() -> i8 {
+    fn max() -> u8 {
         59
     }
 }

@@ -7,15 +7,15 @@ impl TimeUnitItem for DaysOfWeek {
         "days of week"
     }
 
-    fn min() -> i8 {
+    fn min() -> u8 {
         0
     }
 
-    fn max() -> i8 {
+    fn max() -> u8 {
         7
     }
 
-    fn value_from_name(name: &str) -> i8 {
+    fn value_from_name(name: &str) -> u8 {
         match name {
             "sun" | "sunday" => 0,
             "mon" | "monday" => 1,

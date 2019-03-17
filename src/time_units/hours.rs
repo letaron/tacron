@@ -6,11 +6,11 @@ impl TimeUnitItem for Hours {
     fn name<'a>() -> &'a str {
         "hours"
     }
-    fn min() -> i8 {
+    fn min() -> u8 {
         0
     }
 
-    fn max() -> i8 {
+    fn max() -> u8 {
         23
     }
 }

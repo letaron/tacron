@@ -9,22 +9,22 @@ use std::collections::BTreeSet;
 #[derive(Debug)]
 pub enum TimeFieldSpec {
     All,
-    Unique(i8),
+    Unique(u8),
     NamedUnique(String),
-    Range(i8, i8),
+    Range(u8, u8),
     NamedRange(String, String),
-    Step(i8),
-    SteppedRange(i8, i8, i8),
+    Step(u8),
+    SteppedRange(u8, u8, u8),
 }
 
-pub type TimeFieldValuesContainer = BTreeSet<i8>;
+pub type TimeFieldValuesContainer = BTreeSet<u8>;
 
 pub trait TimeUnitItem {
-    fn min() -> i8;
-    fn max() -> i8;
+    fn min() -> u8;
+    fn max() -> u8;
     fn name<'a>() -> &'a str;
 
-    fn validate(value: i8) -> Result<(), String> {
+    fn validate(value: u8) -> Result<(), String> {
         if value < Self::min() {
             return Err(format!(
                 "Min for {} must be at least {}, {} given",
@@ -46,7 +46,7 @@ pub trait TimeUnitItem {
         Ok(())
     }
 
-    fn value_from_name(_name: &str) -> i8 {
+    fn value_from_name(_name: &str) -> u8 {
         panic!(
             "[ERROR] value_from_name is not valid fn for a {}",
             Self::name()

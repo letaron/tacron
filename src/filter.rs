@@ -18,10 +18,10 @@ pub fn filter_tacrons(
     );
 
     tacrons.iter().filter(move |tacron| {
-        tacron.minute.contains(&(current_dow as i8))
-            && tacron.month.contains(&(current_month as i8))
-            && tacron.dom.contains(&(current_dom as i8))
-            && tacron.hour.contains(&(current_hour as i8))
-            && tacron.minute.contains(&(current_minute as i8))
+        tacron.minute.contains(&(current_dow as u8))
+            && tacron.month.contains(&(current_month as u8))
+            && tacron.dom.contains(&(current_dom as u8))
+            && tacron.hour.contains(&(current_hour as u8))
+            && tacron.minute.contains(&(current_minute as u8))
     })
 }
