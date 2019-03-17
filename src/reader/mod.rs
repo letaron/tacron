@@ -1,6 +1,6 @@
 pub mod crontab_reader;
 use crate::{TaCron, TimeFieldSpec};
-use crontab_reader::CrontabReader;
+use crontab_reader::add_crontabs_readers;
 use regex::{Captures, Regex};
 use std::collections::HashMap;
 
@@ -19,7 +19,7 @@ pub trait Reader {
 
 pub fn get_readers(settings: &HashMap<String, Vec<String>>) -> Vec<Box<Reader + Sync + Send>> {
     let mut readers: Vec<Box<Reader + Sync + Send>> = Vec::new();
-    for (reader_type, fn_register) in vec![("crontabs", get_crontabs_readers)] {
+    for (reader_type, fn_register) in vec![("crontabs", add_crontabs_readers)] {
         match settings.get(reader_type) {
             Some(files) => {
                 fn_register(&mut readers, files);
@@ -30,6 +30,7 @@ pub fn get_readers(settings: &HashMap<String, Vec<String>>) -> Vec<Box<Reader + 
     readers
 }
 
+/// Compute all tacrons for all readers
 pub fn get_tacrons(readers: &Vec<Box<Reader + Sync + Send>>) -> Vec<TaCron> {
     let mut tacrons: Vec<TaCron> = Vec::new();
     for reader in readers {
@@ -38,13 +39,6 @@ pub fn get_tacrons(readers: &Vec<Box<Reader + Sync + Send>>) -> Vec<TaCron> {
     }
 
     tacrons
-}
-
-fn get_crontabs_readers(readers: &mut Vec<Box<Reader + Sync + Send>>, crontabs: &Vec<String>) {
-    for crontab in crontabs {
-        println!("[CRONTAB] loading {:?}", crontab);
-        readers.push(Box::new(CrontabReader::new(crontab.to_string())));
-    }
 }
 
 // Represent a not-yet parsed line of a crontab
