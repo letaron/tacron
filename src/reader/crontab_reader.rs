@@ -22,7 +22,10 @@ impl Reader for CrontabReader {
         let comment_regex = Regex::new(r"^\s*#").unwrap();
         let line_regex = Regex::new(r"\s+").unwrap();
 
+        let mut line_number = 0;
         for line in content.split("\n") {
+            line_number += 1;
+
             if comment_regex.is_match(line) == true || line.len() == 0 {
                 continue;
             }
@@ -54,7 +57,7 @@ impl Reader for CrontabReader {
                 times_specs[3].to_string(),
                 times_specs[4].to_string(),
                 cron[command_index..].join(" ").to_string(),
-                self.file.to_string(),
+                format!("crontab_reader@{}:{}", self.file.to_string(), line_number),
             ));
         }
 
@@ -91,7 +94,7 @@ mod tests {
         assert_eq!(task.month, "*");
         assert_eq!(task.dow, "*");
         assert_eq!(task.command, "/foo/bar");
-        assert_eq!(task.source, source);
+        assert_eq!(task.source, "crontab_reader@fixtures/crontab:5");
 
         let task = &tasks[1];
         assert_eq!(task.minute, "1");
@@ -100,7 +103,7 @@ mod tests {
         assert_eq!(task.month, "4");
         assert_eq!(task.dow, "5");
         assert_eq!(task.command, "baz \"foo\" 2>&1");
-        assert_eq!(task.source, source);
+        assert_eq!(task.source, "crontab_reader@fixtures/crontab:6");
     }
 
     #[test]

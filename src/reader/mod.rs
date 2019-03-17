@@ -172,14 +172,25 @@ fn parse(ta_cron: &RawCron) -> TaCron {
         &named_range_handler,
     ];
 
+    let source = ta_cron.source.clone();
+
     TaCron {
-        minute: Minutes::from_time_field_specs(parse_field(&ta_cron.minute, &non_named_handlers)),
-        hour: Hours::from_time_field_specs(parse_field(&ta_cron.hour, &non_named_handlers)),
-        dom: DaysOfMonth::from_time_field_specs(parse_field(&ta_cron.dom, &named_handlers)),
-        month: Months::from_time_field_specs(parse_field(&ta_cron.month, &named_handlers)),
-        dow: DaysOfWeek::from_time_field_specs(parse_field(&ta_cron.dow, &named_handlers)),
+        minute: Minutes::from_time_field_specs(
+            parse_field(&ta_cron.minute, &non_named_handlers),
+            &source,
+        ),
+        hour: Hours::from_time_field_specs(
+            parse_field(&ta_cron.hour, &non_named_handlers),
+            &source,
+        ),
+        dom: DaysOfMonth::from_time_field_specs(
+            parse_field(&ta_cron.dom, &named_handlers),
+            &source,
+        ),
+        month: Months::from_time_field_specs(parse_field(&ta_cron.month, &named_handlers), &source),
+        dow: DaysOfWeek::from_time_field_specs(parse_field(&ta_cron.dow, &named_handlers), &source),
         command: ta_cron.command.clone(),
-        source: ta_cron.source.clone(),
+        source: source,
     }
 }
 

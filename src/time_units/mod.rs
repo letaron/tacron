@@ -54,7 +54,9 @@ pub trait TimeUnitItem {
     }
 
     /// Extract values for the whole field configuration
-    fn from_time_field_specs(time_field_specs: Vec<TimeFieldSpec>) -> TimeFieldValuesContainer {
+    fn from_time_field_specs(
+        time_field_specs: Vec<TimeFieldSpec>, source: &String,
+    ) -> TimeFieldValuesContainer {
         let mut container = TimeFieldValuesContainer::new();
         for time_field_spec in time_field_specs {
             match Self::from_time_field_spec(time_field_spec) {
@@ -63,7 +65,7 @@ pub trait TimeUnitItem {
                         container.insert(*value);
                     }
                 }
-                Err(messsage) => println!("[ERROR] {}", messsage),
+                Err(messsage) => println!("[ERROR] {} - {}", source, messsage),
             }
         }
 
