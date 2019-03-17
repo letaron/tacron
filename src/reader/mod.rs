@@ -19,7 +19,9 @@ pub trait Reader {
 
 pub fn get_readers(settings: &HashMap<String, Vec<String>>) -> Vec<Box<Reader + Sync + Send>> {
     let mut readers: Vec<Box<Reader + Sync + Send>> = Vec::new();
-    get_crontabs_readers(&mut readers, settings.get("crontabs").unwrap());
+    for (reader_type, fn_register) in vec![("crontabs", get_crontabs_readers)] {
+        fn_register(&mut readers, settings.get(reader_type).unwrap());
+    }
     readers
 }
 
