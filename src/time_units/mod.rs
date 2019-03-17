@@ -36,14 +36,20 @@ pub trait TimeUnitItem {
     fn min() -> i8;
     fn max() -> i8;
 
-    fn validate(&self, value: i8) {
+    fn validate(value: i8) -> Result<(), String> {
         if value < Self::min() {
-            panic!("{} must be at least {}", value, Self::min());
+            return Err(format!("{} must be at least {}", value, Self::min()));
         }
 
         if value > Self::max() {
-            panic!("{} must not be greater than {}", value, Self::max());
+            return Err(format!(
+                "{} must not be greater than {}",
+                value,
+                Self::max()
+            ));
         }
+
+        Ok(())
     }
 
     fn value_from_name(name: &str) -> i8 {
@@ -54,8 +60,13 @@ pub trait TimeUnitItem {
     fn from_time_field_specs(time_field_specs: &Vec<TimeFieldSpec>) -> TimeFieldValuesContainer {
         let mut container = TimeFieldValuesContainer::new();
         for time_field_spec in time_field_specs {
-            for value in Self::from_time_field_spec(time_field_spec).iter() {
-                container.insert(*value);
+            match Self::from_time_field_spec(time_field_spec) {
+                Ok(values) => {
+                    for value in values.iter() {
+                        container.insert(*value);
+                    }
+                }
+                Err(messsage) => println!("[ERROR] {}", messsage),
             }
         }
 
@@ -63,26 +74,60 @@ pub trait TimeUnitItem {
     }
 
     /// Extract values for a unique TimeFieldSpec
-    fn from_time_field_spec(time_field_spec: &TimeFieldSpec) -> TimeFieldValuesContainer {
+    fn from_time_field_spec(
+        time_field_spec: &TimeFieldSpec,
+    ) -> Result<TimeFieldValuesContainer, String> {
         let mut container = TimeFieldValuesContainer::new();
         match *time_field_spec {
-            TimeFieldSpec::Unique(value) => container.insert(value),
+            TimeFieldSpec::Unique(value) => {
+                Self::validate(value)?;
+                container.insert(value);
+            }
             TimeFieldSpec::NamedUnique(ref name) => {
-                container.insert(Self::value_from_name(&name));
+                let value = Self::value_from_name(&name);
+                Self::validate(value)?;
+                container.insert(value);
             }
             TimeFieldSpec::Range(start, end) => {
+                Self::validate(start)?;
+                Self::validate(end)?;
+                if start > end {
+                    return Err(format!(
+                        "Start must {} not be greater than end {}",
+                        start, end
+                    ));
+                }
                 for value in start..(end + 1) {
                     container.insert(value);
                 }
             }
             TimeFieldSpec::NamedRange(ref name_start, ref name_end) => {
-                for value in
-                    Self::value_from_name(&name_start)..(Self::value_from_name(&name_end) + 1)
-                {
+                let start = Self::value_from_name(&name_start);
+                let end = Self::value_from_name(&name_end);
+                Self::validate(start)?;
+                Self::validate(end)?;
+                if start > end {
+                    return Err(format!(
+                        "Start must {} not be greater than end {}",
+                        start, end
+                    ));
+                }
+                for value in start..(end + 1) {
                     container.insert(value);
                 }
             }
             TimeFieldSpec::SteppedRange(start, end, step) => {
+                Self::validate(start)?;
+                Self::validate(end)?;
+                if start > end {
+                    return Err(format!(
+                        "Start must {} not be greater than end {}",
+                        start, end
+                    ));
+                }
+                if step < 2 || step >= (end - start) {
+                    return Err(format!("Step must be > 2 and < {}", end - start));
+                }
                 for value in (start..(end + 1)).step_by(step as usize) {
                     container.insert(value);
                 }
@@ -98,6 +143,6 @@ pub trait TimeUnitItem {
                 }
             }
         };
-        container
+        Ok(container)
     }
 }
