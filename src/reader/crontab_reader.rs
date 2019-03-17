@@ -25,6 +25,7 @@ impl Reader for CrontabReader {
         let mut line_number = 0;
         for line in content.split("\n") {
             line_number += 1;
+            let source = format!("crontab_reader@{}:{}", self.file.to_string(), line_number);
 
             if comment_regex.is_match(line) == true || line.len() == 0 {
                 continue;
@@ -43,7 +44,13 @@ impl Reader for CrontabReader {
                     "@weekly" => ["0", "0", "*", "*", "0"],
                     "@daily" | "@midnight" => ["0", "0", "*", "*", "*"],
                     "@hourly" => ["0", "*", "*", "*", "*"],
-                    x => panic!("Invalid crontab value: {}", x),
+                    x => {
+                        println!(
+                            "{}",
+                            format!("[WARNING] {} - Invalid special value: {}", source, x)
+                        );
+                        continue;
+                    }
                 };
             } else {
                 command_index = 5;
@@ -57,7 +64,7 @@ impl Reader for CrontabReader {
                 times_specs[3].to_string(),
                 times_specs[4].to_string(),
                 cron[command_index..].join(" ").to_string(),
-                format!("crontab_reader@{}:{}", self.file.to_string(), line_number),
+                source,
             ));
         }
 
