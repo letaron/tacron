@@ -91,7 +91,7 @@ fn parse_field(field: &String, field_handlers: &[&FieldHandler]) -> Vec<TimeFiel
     values
 }
 
-pub fn parse(ta_cron: &RawCron) -> TaCron {
+fn parse(ta_cron: &RawCron) -> TaCron {
     let all_handler = FieldHandler {
         regex: Regex::new(r"^(\*)$").unwrap(),
         f: |_capture: Captures| TimeFieldSpec::All,
