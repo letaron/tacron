@@ -71,7 +71,7 @@ pub fn add_crontabs_readers(readers: &mut Vec<Box<Reader + Sync + Send>>, cronta
 
 #[cfg(test)]
 mod tests {
-    use crate::reader::crontab_reader::CrontabReader;
+    use crate::reader::crontab_reader::{add_crontabs_readers, CrontabReader};
     use crate::Reader;
 
     #[test]
@@ -101,5 +101,14 @@ mod tests {
         assert_eq!(task.dow, "5");
         assert_eq!(task.command, "baz \"foo\" 2>&1");
         assert_eq!(task.source, source);
+    }
+
+    #[test]
+    fn it_add_crontab_readers() {
+        let mut readers: Vec<Box<Reader + Sync + Send>> = Vec::new();
+        let crontabs = vec!["crontab1".to_string(), "crontab2".to_string()];
+
+        add_crontabs_readers(&mut readers, &crontabs);
+        assert_eq!(readers.len(), crontabs.len());
     }
 }
