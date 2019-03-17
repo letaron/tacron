@@ -9,7 +9,7 @@ mod time_units;
 
 use chrono::Local;
 use filter::filter_tacrons;
-use reader::{get_crontabs_readers, Reader};
+use reader::{get_readers, Reader};
 use settings::get_settings;
 use std::{
     sync::{Arc, Mutex, RwLock},
@@ -61,14 +61,14 @@ fn exec_command(command: String) {
 }
 
 fn main() {
-    let mut readers: Vec<Box<Reader + Sync + Send>> = Vec::new();
     let mut tacrons: Vec<TaCron> = Vec::new();
+    let mut readers: Vec<Box<Reader + Sync + Send>>;
 
     {
         let settings = get_settings();
-        get_crontabs_readers(&mut readers, settings.get("crontabs").unwrap());
+        readers = get_readers(&settings);
     }
-    
+
     for reader in &readers {
         let mut reader_tacrons = reader.tacrons();
         tacrons.append(&mut reader_tacrons)

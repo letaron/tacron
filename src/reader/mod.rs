@@ -2,6 +2,7 @@ pub mod crontab_reader;
 use crate::{TaCron, TimeFieldSpec};
 use crontab_reader::CrontabReader;
 use regex::{Captures, Regex};
+use std::collections::HashMap;
 
 pub trait Reader {
     fn read(&self) -> Vec<RawCron>;
@@ -16,7 +17,13 @@ pub trait Reader {
     }
 }
 
-pub fn get_crontabs_readers(readers: &mut Vec<Box<Reader + Sync + Send>>, crontabs: &Vec<String>) {
+pub fn get_readers(settings: &HashMap<String, Vec<String>>) -> Vec<Box<Reader + Sync + Send>> {
+    let mut readers: Vec<Box<Reader + Sync + Send>> = Vec::new();
+    get_crontabs_readers(&mut readers, settings.get("crontabs").unwrap());
+    readers
+}
+
+fn get_crontabs_readers(readers: &mut Vec<Box<Reader + Sync + Send>>, crontabs: &Vec<String>) {
     for crontab in crontabs {
         println!("[CRONTAB] loading {:?}", crontab);
         readers.push(Box::new(CrontabReader::new(crontab.to_string())));
