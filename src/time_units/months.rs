@@ -3,6 +3,10 @@ use crate::time_units::TimeUnitItem;
 pub struct Months {}
 
 impl TimeUnitItem for Months {
+    fn name<'a>() -> &'a str {
+        "months"
+    }
+
     fn min() -> i8 {
         1
     }

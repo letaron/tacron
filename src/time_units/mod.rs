@@ -35,6 +35,7 @@ impl TimeFieldValuesContainer {
 pub trait TimeUnitItem {
     fn min() -> i8;
     fn max() -> i8;
+    fn name<'a>() -> &'a str;
 
     fn validate(value: i8) -> Result<(), String> {
         if value < Self::min() {
@@ -52,8 +53,11 @@ pub trait TimeUnitItem {
         Ok(())
     }
 
-    fn value_from_name(name: &str) -> i8 {
-        panic!("{} is not known.", name)
+    fn value_from_name(_name: &str) -> i8 {
+        panic!(
+            "[ERROR] value_from_name is not valid fn for {}",
+            Self::name()
+        )
     }
 
     /// Extract values for the whole field configuration
@@ -93,8 +97,10 @@ pub trait TimeUnitItem {
                 Self::validate(end)?;
                 if start > end {
                     return Err(format!(
-                        "Start must {} not be greater than end {}",
-                        start, end
+                        "Start for {} must not be greater than end {}, {} given",
+                        Self::name(),
+                        end,
+                        start
                     ));
                 }
                 for value in start..(end + 1) {
@@ -108,8 +114,10 @@ pub trait TimeUnitItem {
                 Self::validate(end)?;
                 if start > end {
                     return Err(format!(
-                        "Start must {} not be greater than end {}",
-                        start, end
+                        "Start for {} must not be greater than end {}, {} given",
+                        Self::name(),
+                        end,
+                        start
                     ));
                 }
                 for value in start..(end + 1) {
@@ -121,12 +129,19 @@ pub trait TimeUnitItem {
                 Self::validate(end)?;
                 if start > end {
                     return Err(format!(
-                        "Start must {} not be greater than end {}",
-                        start, end
+                        "Start for {} must not be greater than end {}, {} given",
+                        Self::name(),
+                        end,
+                        start
                     ));
                 }
                 if step < 2 || step >= (end - start) {
-                    return Err(format!("Step must be > 2 and < {}", end - start));
+                    return Err(format!(
+                        "Step for {} must be > 2 and < {}, {} given",
+                        Self::name(),
+                        end - start,
+                        step
+                    ));
                 }
                 for value in (start..(end + 1)).step_by(step as usize) {
                     container.insert(value);

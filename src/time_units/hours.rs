@@ -3,6 +3,9 @@ use crate::time_units::TimeUnitItem;
 pub struct Hours {}
 
 impl TimeUnitItem for Hours {
+    fn name<'a>() -> &'a str {
+        "hours"
+    }
     fn min() -> i8 {
         0
     }

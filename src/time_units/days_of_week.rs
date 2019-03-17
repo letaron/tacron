@@ -3,6 +3,10 @@ use crate::time_units::TimeUnitItem;
 pub struct DaysOfWeek {}
 
 impl TimeUnitItem for DaysOfWeek {
+    fn name<'a>() -> &'a str {
+        "days of week"
+    }
+
     fn min() -> i8 {
         0
     }

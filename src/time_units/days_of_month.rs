@@ -3,6 +3,10 @@ use crate::time_units::TimeUnitItem;
 pub struct DaysOfMonth {}
 
 impl TimeUnitItem for DaysOfMonth {
+    fn name<'a>() -> &'a str {
+        "days of month"
+    }
+
     fn min() -> i8 {
         1
     }
