@@ -74,7 +74,7 @@ impl Reader for CrontabReader {
 
 pub fn add_crontabs_readers(readers: &mut Vec<Box<Reader + Sync + Send>>, crontabs: &Vec<String>) {
     for crontab in crontabs {
-        println!("[CRONTAB] loading {:?}", crontab);
+        println!("[READER] contrab - loading: {:?}", crontab);
         readers.push(Box::new(CrontabReader::new(crontab.to_string())));
     }
 }

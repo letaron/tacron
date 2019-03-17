@@ -56,6 +56,7 @@ fn main() {
         readers = get_readers(&settings);
     }
     let tacrons = get_tacrons(&readers);
+    println!("[INFO] {} tacrons configured", tacrons.len());
 
     let shared_tacrons = Arc::new(RwLock::new(tacrons));
 
@@ -70,7 +71,7 @@ fn add_sighup_handler(readers: Vec<Box<Reader + Sync + Send>>, tacrons: Arc<RwLo
 
     let _signal = unsafe {
         signal_hook::register(signal_hook::SIGHUP, move || {
-            println!("[SIGHUP] received, refreshing...");
+            println!("[INFO] SIGHUP received, refreshing...");
             let mut local_readers = shared_reader.lock().unwrap();
             let mut local_tacrons = tacrons.write().unwrap();
 
@@ -87,7 +88,7 @@ fn add_sighup_handler(readers: Vec<Box<Reader + Sync + Send>>, tacrons: Arc<RwLo
         })
     };
 
-    println!("[SIGHUP] registered");
+    println!("[INFO] SIGHUP registered");
 }
 
 fn main_loop(tacrons: Arc<RwLock<Vec<TaCron>>>) {
