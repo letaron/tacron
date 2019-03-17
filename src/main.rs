@@ -64,9 +64,11 @@ fn main() {
     let mut readers: Vec<Box<Reader + Sync + Send>> = Vec::new();
     let mut tacrons: Vec<TaCron> = Vec::new();
 
-    let settings = get_settings();
-    get_crontabs_readers(&mut readers, settings.get("crontabs").unwrap());
-
+    {
+        let settings = get_settings();
+        get_crontabs_readers(&mut readers, settings.get("crontabs").unwrap());
+    }
+    
     for reader in &readers {
         let mut reader_tacrons = reader.tacrons();
         tacrons.append(&mut reader_tacrons)
