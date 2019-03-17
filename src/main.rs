@@ -100,6 +100,7 @@ fn main_loop(tacrons: Arc<RwLock<Vec<TaCron>>>) {
         .name("main loop".into())
         .spawn(move || loop {
             {
+                // create an inner scope so tacrons is released w/o waiting the next iteration
                 let (today, now) = (Local::today(), Local::now());
                 let local_tacrons = tacrons.read().unwrap();
                 let filtered = filter_tacrons(&local_tacrons, today, now);
