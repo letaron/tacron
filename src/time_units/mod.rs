@@ -4,7 +4,6 @@ pub mod hours;
 pub mod minutes;
 pub mod months;
 
-use std::collections::btree_set::Iter;
 use std::collections::BTreeSet;
 
 #[derive(Debug)]
@@ -18,29 +17,7 @@ pub enum TimeFieldSpec {
     SteppedRange(i8, i8, i8),
 }
 
-pub struct TimeFieldValuesContainer {
-    values: BTreeSet<i8>,
-}
-
-impl TimeFieldValuesContainer {
-    pub fn new() -> Self {
-        TimeFieldValuesContainer {
-            values: BTreeSet::new(),
-        }
-    }
-
-    pub fn contains(&self, value: &i8) -> bool {
-        self.values.contains(value)
-    }
-
-    pub fn insert(&mut self, value: i8) {
-        self.values.insert(value);
-    }
-
-    pub fn iter(&self) -> Iter<i8> {
-        self.values.iter()
-    }
-}
+pub type TimeFieldValuesContainer = BTreeSet<i8>;
 
 pub trait TimeUnitItem {
     fn min() -> i8;
