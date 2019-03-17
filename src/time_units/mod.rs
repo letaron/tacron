@@ -46,11 +46,11 @@ pub trait TimeUnitItem {
         Ok(())
     }
 
-    fn value_from_name(_name: &str) -> u8 {
-        panic!(
-            "[ERROR] value_from_name is not valid fn for a {}",
+    fn value_from_name(_name: &str) -> Result<u8, String> {
+        Err(format!(
+            "[WARNING] value_from_name is not valid fn for a {}",
             Self::name()
-        )
+        ))
     }
 
     /// Extract values for the whole field configuration
@@ -65,7 +65,7 @@ pub trait TimeUnitItem {
                         container.insert(*value);
                     }
                 }
-                Err(messsage) => println!("[ERROR] {} - {}", source, messsage),
+                Err(messsage) => println!("[WARNING] {} - {}", source, messsage),
             }
         }
 
@@ -83,7 +83,7 @@ pub trait TimeUnitItem {
                 container.insert(value);
             }
             TimeFieldSpec::NamedUnique(ref name) => {
-                let value = Self::value_from_name(&name);
+                let value = Self::value_from_name(&name)?;
                 Self::validate(value)?;
                 container.insert(value);
             }
@@ -103,8 +103,8 @@ pub trait TimeUnitItem {
                 }
             }
             TimeFieldSpec::NamedRange(ref name_start, ref name_end) => {
-                let start = Self::value_from_name(&name_start);
-                let end = Self::value_from_name(&name_end);
+                let start = Self::value_from_name(&name_start)?;
+                let end = Self::value_from_name(&name_end)?;
                 Self::validate(start)?;
                 Self::validate(end)?;
                 if start > end {

@@ -15,16 +15,16 @@ impl TimeUnitItem for DaysOfWeek {
         7
     }
 
-    fn value_from_name(name: &str) -> u8 {
+    fn value_from_name(name: &str) -> Result<u8, String> {
         match name {
-            "sun" | "sunday" => 0,
-            "mon" | "monday" => 1,
-            "tue" | "tuesday" => 2,
-            "wed" | "wednesday" => 3,
-            "thu" | "thursday" => 4,
-            "fri" | "friday" => 5,
-            "sat" | "saturday" => 6,
-            _ => panic!("{} is not a valid day of week.", name),
+            "sun" | "sunday" => Ok(0),
+            "mon" | "monday" => Ok(1),
+            "tue" | "tuesday" => Ok(2),
+            "wed" | "wednesday" => Ok(3),
+            "thu" | "thursday" => Ok(4),
+            "fri" | "friday" => Ok(5),
+            "sat" | "saturday" => Ok(6),
+            _ => Err(format!("{} is not a valid day of week.", name)),
         }
     }
 }
@@ -52,15 +52,14 @@ mod tests {
             "friday",
             "saturday",
         ] {
-            assert_eq!(DaysOfWeek::value_from_name(day), i);
-            assert_eq!(DaysOfWeek::value_from_name(&day[0..3]), i);
+            assert_eq!(DaysOfWeek::value_from_name(day).unwrap(), i);
+            assert_eq!(DaysOfWeek::value_from_name(&day[0..3]).unwrap(), i);
             i += 1
         }
     }
 
     #[test]
-    #[should_panic]
-    fn it_should_panic_when_unknow() {
-        DaysOfWeek::value_from_name("foo");
+    fn it_should_err_when_unknow() {
+        DaysOfWeek::value_from_name("foo").is_err();
     }
 }

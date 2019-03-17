@@ -15,21 +15,21 @@ impl TimeUnitItem for Months {
         12
     }
 
-    fn value_from_name(name: &str) -> u8 {
+    fn value_from_name(name: &str) -> Result<u8, String> {
         match name {
-            "jan" | "january" => 1,
-            "feb" | "february" => 2,
-            "mar" | "march" => 3,
-            "apr" | "april" => 4,
-            "may" => 5,
-            "jun" | "june" => 6,
-            "jul" | "july" => 7,
-            "aug" | "august" => 8,
-            "sep" | "september" => 9,
-            "oct" | "october" => 10,
-            "nov" | "november" => 11,
-            "dec" | "december" => 12,
-            _ => panic!("{} is not a valid month.", name),
+            "jan" | "january" => Ok(1),
+            "feb" | "february" => Ok(2),
+            "mar" | "march" => Ok(3),
+            "apr" | "april" => Ok(4),
+            "may" => Ok(5),
+            "jun" | "june" => Ok(6),
+            "jul" | "july" => Ok(7),
+            "aug" | "august" => Ok(8),
+            "sep" | "september" => Ok(9),
+            "oct" | "october" => Ok(10),
+            "nov" | "november" => Ok(11),
+            "dec" | "december" => Ok(12),
+            _ => Err(format!("{} is not a valid month.", name)),
         }
     }
 }
@@ -62,15 +62,14 @@ mod tests {
             "november",
             "december",
         ] {
-            assert_eq!(Months::value_from_name(month), i);
-            assert_eq!(Months::value_from_name(&month[0..3]), i);
+            assert_eq!(Months::value_from_name(month).unwrap(), i);
+            assert_eq!(Months::value_from_name(&month[0..3]).unwrap(), i);
             i += 1
         }
     }
 
     #[test]
-    #[should_panic]
-    fn it_should_panic_when_unknow() {
-        Months::value_from_name("foo");
+    fn it_should_err_when_unknow() {
+        Months::value_from_name("foo").is_err();
     }
 }
