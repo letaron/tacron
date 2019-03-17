@@ -15,25 +15,14 @@ use std::{
     sync::{Arc, Mutex, RwLock},
     thread, time,
 };
+use time_units::TimeFieldValuesContainer;
 
-#[derive(Debug)]
-pub enum TimeFieldSpec {
-    All,
-    Unique(i8),
-    NamedUnique(String),
-    Range(i8, i8),
-    NamedRange(String, String),
-    Step(i8),
-    SteppedRange(i8, i8, i8),
-}
-
-#[derive(Debug)]
 pub struct TaCron {
-    pub minute: Vec<TimeFieldSpec>,
-    pub hour: Vec<TimeFieldSpec>,
-    pub dom: Vec<TimeFieldSpec>,
-    pub month: Vec<TimeFieldSpec>,
-    pub dow: Vec<TimeFieldSpec>,
+    pub minute: TimeFieldValuesContainer,
+    pub hour: TimeFieldValuesContainer,
+    pub dom: TimeFieldValuesContainer,
+    pub month: TimeFieldValuesContainer,
+    pub dow: TimeFieldValuesContainer,
     pub command: String,
     pub source: String,
 }

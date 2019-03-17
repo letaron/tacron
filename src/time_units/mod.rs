@@ -4,9 +4,19 @@ pub mod hours;
 pub mod minutes;
 pub mod months;
 
-use crate::TimeFieldSpec;
 use std::collections::btree_set::Iter;
 use std::collections::BTreeSet;
+
+#[derive(Debug)]
+pub enum TimeFieldSpec {
+    All,
+    Unique(i8),
+    NamedUnique(String),
+    Range(i8, i8),
+    NamedRange(String, String),
+    Step(i8),
+    SteppedRange(i8, i8, i8),
+}
 
 pub struct TimeFieldValuesContainer {
     values: BTreeSet<i8>,
@@ -61,7 +71,7 @@ pub trait TimeUnitItem {
     }
 
     /// Extract values for the whole field configuration
-    fn from_time_field_specs(time_field_specs: &Vec<TimeFieldSpec>) -> TimeFieldValuesContainer {
+    fn from_time_field_specs(time_field_specs: Vec<TimeFieldSpec>) -> TimeFieldValuesContainer {
         let mut container = TimeFieldValuesContainer::new();
         for time_field_spec in time_field_specs {
             match Self::from_time_field_spec(time_field_spec) {
@@ -79,10 +89,10 @@ pub trait TimeUnitItem {
 
     /// Extract values for a unique TimeFieldSpec
     fn from_time_field_spec(
-        time_field_spec: &TimeFieldSpec,
+        time_field_spec: TimeFieldSpec,
     ) -> Result<TimeFieldValuesContainer, String> {
         let mut container = TimeFieldValuesContainer::new();
-        match *time_field_spec {
+        match time_field_spec {
             TimeFieldSpec::Unique(value) => {
                 Self::validate(value)?;
                 container.insert(value);

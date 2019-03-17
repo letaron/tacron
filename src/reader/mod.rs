@@ -1,5 +1,11 @@
 pub mod crontab_reader;
-use crate::{TaCron, TimeFieldSpec};
+use crate::time_units::days_of_month::DaysOfMonth;
+use crate::time_units::days_of_week::DaysOfWeek;
+use crate::time_units::hours::Hours;
+use crate::time_units::minutes::Minutes;
+use crate::time_units::months::Months;
+use crate::time_units::{TimeFieldSpec, TimeUnitItem};
+use crate::TaCron;
 use crontab_reader::add_crontabs_readers;
 use regex::{Captures, Regex};
 use std::collections::HashMap;
@@ -167,11 +173,11 @@ fn parse(ta_cron: &RawCron) -> TaCron {
     ];
 
     TaCron {
-        minute: parse_field(&ta_cron.minute, &non_named_handlers),
-        hour: parse_field(&ta_cron.hour, &non_named_handlers),
-        dom: parse_field(&ta_cron.dom, &named_handlers),
-        month: parse_field(&ta_cron.month, &named_handlers),
-        dow: parse_field(&ta_cron.dow, &named_handlers),
+        minute: Minutes::from_time_field_specs(parse_field(&ta_cron.minute, &non_named_handlers)),
+        hour: Hours::from_time_field_specs(parse_field(&ta_cron.hour, &non_named_handlers)),
+        dom: DaysOfMonth::from_time_field_specs(parse_field(&ta_cron.dom, &named_handlers)),
+        month: Months::from_time_field_specs(parse_field(&ta_cron.month, &named_handlers)),
+        dow: DaysOfWeek::from_time_field_specs(parse_field(&ta_cron.dow, &named_handlers)),
         command: ta_cron.command.clone(),
         source: ta_cron.source.clone(),
     }
