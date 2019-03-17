@@ -63,7 +63,7 @@ fn exec_command(command: String) {
 fn main() {
     let readers: Vec<Box<Reader + Sync + Send>>;
     {
-        let settings = get_settings();
+        let settings = get_settings(); // will be dropped at the end of the inner scope
         readers = get_readers(&settings);
     }
     let tacrons = get_tacrons(&readers);
@@ -85,6 +85,7 @@ fn add_sighup_handler(readers: Vec<Box<Reader + Sync + Send>>, tacrons: Arc<RwLo
             let local_readers = shared_reader.lock().unwrap();
             let mut local_tacrons = tacrons.write().unwrap();
 
+            // @todo try to replace directly the ref but may lead to mem leaks maybe
             local_tacrons.clear();
             let mut tacrons = get_tacrons(&local_readers);
             local_tacrons.append(&mut tacrons);
