@@ -26,14 +26,20 @@ pub trait TimeUnitItem {
 
     fn validate(value: i8) -> Result<(), String> {
         if value < Self::min() {
-            return Err(format!("{} must be at least {}", value, Self::min()));
+            return Err(format!(
+                "Min for {} must be at least {}, {} given",
+                Self::name(),
+                Self::min(),
+                value
+            ));
         }
 
         if value > Self::max() {
             return Err(format!(
-                "{} must not be greater than {}",
-                value,
-                Self::max()
+                "Max for {} must not be greater than {}, {} given",
+                Self::name(),
+                Self::max(),
+                value
             ));
         }
 
@@ -42,7 +48,7 @@ pub trait TimeUnitItem {
 
     fn value_from_name(_name: &str) -> i8 {
         panic!(
-            "[ERROR] value_from_name is not valid fn for {}",
+            "[ERROR] value_from_name is not valid fn for a {}",
             Self::name()
         )
     }
