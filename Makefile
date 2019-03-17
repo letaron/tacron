@@ -1,3 +1,6 @@
+init:
+	if [ ! -f "config.yaml" ]; then cp config.yaml.dist config.yaml; fi
+
 run:
 	cargo run
 
