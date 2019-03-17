@@ -20,7 +20,12 @@ pub trait Reader {
 pub fn get_readers(settings: &HashMap<String, Vec<String>>) -> Vec<Box<Reader + Sync + Send>> {
     let mut readers: Vec<Box<Reader + Sync + Send>> = Vec::new();
     for (reader_type, fn_register) in vec![("crontabs", get_crontabs_readers)] {
-        fn_register(&mut readers, settings.get(reader_type).unwrap());
+        match settings.get(reader_type) {
+            Some(files) => {
+                fn_register(&mut readers, files);
+            }
+            None => println!("[READERS]: no configuration key found for {}", reader_type),
+        }
     }
     readers
 }
@@ -175,5 +180,34 @@ pub fn parse(ta_cron: &RawCron) -> TaCron {
         dow: parse_field(&ta_cron.dow, &named_handlers),
         command: ta_cron.command.clone(),
         source: ta_cron.source.clone(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use crate::reader::get_readers;
+    use std::collections::HashMap;
+
+    #[test]
+    fn there_is_readers_for_crontabs() {
+        let mut settings: HashMap<String, Vec<String>> = HashMap::new();
+        settings.insert(
+            "crontabs".to_string(),
+            vec!["crontab/foo".to_string(), "crontab/bar".to_string()],
+        );
+        let readers = get_readers(&settings);
+        assert_eq!(readers.len(), 2);
+    }
+
+    #[test]
+    fn there_is_no_readers() {
+        let mut settings: HashMap<String, Vec<String>> = HashMap::new();
+        settings.insert(
+            "foo".to_string(),
+            vec!["foo/bar".to_string(), "foo/baz".to_string()],
+        );
+        let readers = get_readers(&settings);
+        assert_eq!(readers.len(), 0);
     }
 }
