@@ -9,7 +9,7 @@ mod time_units;
 
 use chrono::Local;
 use filter::filter_tacrons;
-use reader::{get_readers, Reader};
+use reader::{get_readers, get_tacrons, Reader};
 use settings::get_settings;
 use std::{
     sync::{Arc, Mutex, RwLock},
@@ -61,18 +61,12 @@ fn exec_command(command: String) {
 }
 
 fn main() {
-    let mut tacrons: Vec<TaCron> = Vec::new();
-    let mut readers: Vec<Box<Reader + Sync + Send>>;
-
+    let readers: Vec<Box<Reader + Sync + Send>>;
     {
         let settings = get_settings();
         readers = get_readers(&settings);
     }
-
-    for reader in &readers {
-        let mut reader_tacrons = reader.tacrons();
-        tacrons.append(&mut reader_tacrons)
-    }
+    let tacrons = get_tacrons(&readers);
 
     let shared_tacrons = Arc::new(RwLock::new(tacrons));
 
@@ -92,12 +86,8 @@ fn add_sighup_handler(readers: Vec<Box<Reader + Sync + Send>>, tacrons: Arc<RwLo
             let mut local_tacrons = tacrons.write().unwrap();
 
             local_tacrons.clear();
-            for local_reader in local_readers.iter() {
-                // @todo replace "as a ref" maybe, but may lead to memory leak ?
-                for tacron in local_reader.tacrons() {
-                    local_tacrons.push(tacron);
-                }
-            }
+            let mut tacrons = get_tacrons(&local_readers);
+            local_tacrons.append(&mut tacrons);
         })
     };
 

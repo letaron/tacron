@@ -25,6 +25,16 @@ pub fn get_readers(settings: &HashMap<String, Vec<String>>) -> Vec<Box<Reader + 
     readers
 }
 
+pub fn get_tacrons(readers: &Vec<Box<Reader + Sync + Send>>) -> Vec<TaCron> {
+    let mut tacrons: Vec<TaCron> = Vec::new();
+    for reader in readers {
+        let mut reader_tacrons = reader.tacrons();
+        tacrons.append(&mut reader_tacrons)
+    }
+
+    tacrons
+}
+
 fn get_crontabs_readers(readers: &mut Vec<Box<Reader + Sync + Send>>, crontabs: &Vec<String>) {
     for crontab in crontabs {
         println!("[CRONTAB] loading {:?}", crontab);
