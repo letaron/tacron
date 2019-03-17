@@ -24,3 +24,39 @@ impl TimeUnitItem for DaysOfWeek {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::time_units::days_of_week::DaysOfWeek;
+    use crate::time_units::TimeUnitItem;
+
+    #[test]
+    fn it_has_correct_boundaries() {
+        assert_eq!(DaysOfWeek::min(), 0);
+        assert_eq!(DaysOfWeek::max(), 7);
+    }
+
+    #[test]
+    fn it_has_correct_name_conversion() {
+        let mut i = 0;
+        for day in vec![
+            "sunday",
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+        ] {
+            assert_eq!(DaysOfWeek::value_from_name(day), i);
+            assert_eq!(DaysOfWeek::value_from_name(&day[0..3]), i);
+            i += 1
+        }
+    }
+
+    #[test]
+    #[should_panic]
+    fn it_should_panic_when_unknow() {
+        DaysOfWeek::value_from_name("foo");
+    }
+}

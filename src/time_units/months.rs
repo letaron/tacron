@@ -29,3 +29,44 @@ impl TimeUnitItem for Months {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::time_units::months::Months;
+    use crate::time_units::TimeUnitItem;
+
+    #[test]
+    fn it_has_correct_boundaries() {
+        assert_eq!(Months::min(), 1);
+        assert_eq!(Months::max(), 12);
+    }
+
+    #[test]
+    fn it_has_correct_name_conversion() {
+        let mut i = 1;
+        for month in vec![
+            "january",
+            "february",
+            "march",
+            "april",
+            "may",
+            "june",
+            "july",
+            "august",
+            "september",
+            "october",
+            "november",
+            "december",
+        ] {
+            assert_eq!(Months::value_from_name(month), i);
+            assert_eq!(Months::value_from_name(&month[0..3]), i);
+            i += 1
+        }
+    }
+
+    #[test]
+    #[should_panic]
+    fn it_should_panic_when_unknow() {
+        Months::value_from_name("foo");
+    }
+}
