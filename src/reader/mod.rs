@@ -24,11 +24,11 @@ pub trait Reader {
 }
 
 pub fn instantiate_readers(
-    settings: &HashMap<String, Vec<String>>,
+    config: &HashMap<String, Vec<String>>,
 ) -> Vec<Box<Reader + Sync + Send>> {
     let mut readers: Vec<Box<Reader + Sync + Send>> = Vec::new();
     for (reader_type, fn_register) in vec![("crontabs", instantiate_crontabs_readers)] {
-        match settings.get(reader_type) {
+        match config.get(reader_type) {
             Some(files) => {
                 fn_register(&mut readers, files);
             }
@@ -39,7 +39,7 @@ pub fn instantiate_readers(
 }
 
 /// Compute all tacrons for all readers
-pub fn get_tacrons(readers: &Vec<Box<Reader + Sync + Send>>) -> Vec<TaCron> {
+pub fn retrieve_tacrons(readers: &Vec<Box<Reader + Sync + Send>>) -> Vec<TaCron> {
     let mut tacrons: Vec<TaCron> = Vec::new();
     for reader in readers {
         let mut reader_tacrons = reader.tacrons();
@@ -203,23 +203,23 @@ mod tests {
 
     #[test]
     fn there_is_readers_for_crontabs() {
-        let mut settings: HashMap<String, Vec<String>> = HashMap::new();
-        settings.insert(
+        let mut config: HashMap<String, Vec<String>> = HashMap::new();
+        config.insert(
             "crontabs".to_string(),
             vec!["crontab/foo".to_string(), "crontab/bar".to_string()],
         );
-        let readers = instantiate_readers(&settings);
+        let readers = instantiate_readers(&config);
         assert_eq!(readers.len(), 2);
     }
 
     #[test]
     fn there_is_no_readers() {
-        let mut settings: HashMap<String, Vec<String>> = HashMap::new();
-        settings.insert(
+        let mut config: HashMap<String, Vec<String>> = HashMap::new();
+        config.insert(
             "foo".to_string(),
             vec!["foo/bar".to_string(), "foo/baz".to_string()],
         );
-        let readers = instantiate_readers(&settings);
+        let readers = instantiate_readers(&config);
         assert_eq!(readers.len(), 0);
     }
 }

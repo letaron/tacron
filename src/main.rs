@@ -1,15 +1,15 @@
 extern crate chrono;
 extern crate signal_hook;
 
+mod config;
 mod filter;
 mod reader;
-mod settings;
 mod time_units;
 
 use chrono::Local;
+use config::get_config;
 use filter::filter_tacrons;
-use reader::{get_tacrons, instantiate_readers, Reader};
-use settings::get_settings;
+use reader::{instantiate_readers, retrieve_tacrons, Reader};
 use std::{
     sync::{Arc, Mutex, RwLock},
     thread, time,
@@ -50,10 +50,10 @@ fn exec_command(command: String) {
 fn main() {
     let readers: Vec<Box<Reader + Sync + Send>>;
     {
-        let settings = get_settings(); // will be dropped at the end of the inner scope
-        readers = instantiate_readers(&settings.readers);
+        let config = get_config(); // will be dropped at the end of the inner scope
+        readers = instantiate_readers(&config.readers);
     }
-    let tacrons = get_tacrons(&readers);
+    let tacrons = retrieve_tacrons(&readers);
     println!("[INFO] {} TaCrons found", tacrons.len());
 
     let shared_tacrons = Arc::new(RwLock::new(tacrons));
@@ -75,13 +75,13 @@ fn add_sighup_handler(readers: Vec<Box<Reader + Sync + Send>>, tacrons: Arc<RwLo
 
             // @todo try to replace directly the ref but may lead to mem leaks maybe
             local_readers.clear();
-            let settings = get_settings();
-            let mut readers = instantiate_readers(&settings.readers);
+            let config = get_config();
+            let mut readers = instantiate_readers(&config.readers);
             local_readers.append(&mut readers);
 
             // @todo try to replace directly the ref but may lead to mem leaks maybe
             local_tacrons.clear();
-            let mut tacrons = get_tacrons(&local_readers);
+            let mut tacrons = retrieve_tacrons(&local_readers);
             local_tacrons.append(&mut tacrons);
         })
     };
