@@ -11,10 +11,10 @@ use regex::{Captures, Regex};
 use std::collections::HashMap;
 
 pub trait Reader {
-    fn read(&self) -> Vec<RawCron>;
+    fn raw_crons(&self) -> Vec<RawCron>;
 
     fn tacrons(&self) -> Vec<TaCron> {
-        let raw_crons = self.read();
+        let raw_crons = self.raw_crons();
         let mut tacrons = Vec::new();
         for raw_cron in raw_crons {
             tacrons.push(parse(&raw_cron));

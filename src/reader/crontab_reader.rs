@@ -15,23 +15,23 @@ impl CrontabReader {
 }
 
 impl Reader for CrontabReader {
-    fn read(&self) -> Vec<RawCron> {
+    fn raw_crons(&self) -> Vec<RawCron> {
         let mut tasks: Vec<RawCron> = Vec::new();
         let content = fs::read_to_string(&self.file).expect("Unable to read file");
 
-        let comment_regex = Regex::new(r"^\s*#").unwrap();
-        let line_regex = Regex::new(r"\s+").unwrap();
+        let line_is_comment_regex = Regex::new(r"^\s*#").unwrap();
+        let line_split_regex = Regex::new(r"\s+").unwrap();
 
         let mut line_number = 0;
         for line in content.split("\n") {
             line_number += 1;
             let source = format!("crontab_reader@{}:{}", self.file.to_string(), line_number);
 
-            if comment_regex.is_match(line) == true || line.len() == 0 {
+            if line.len() == 0 || line_is_comment_regex.is_match(line) {
                 continue;
             }
 
-            let cron: Vec<&str> = line_regex.split(line).collect();
+            let cron: Vec<&str> = line_split_regex.split(line).collect();
 
             let times_specs;
             let command_index;
@@ -72,7 +72,7 @@ impl Reader for CrontabReader {
     }
 }
 
-/// Add a reader for each crontab file
+/// Push a reader in `readers` for each `crontabs` file
 pub fn instantiate_crontabs_readers(
     readers: &mut Vec<Box<Reader + Sync + Send>>, crontabs: &Vec<String>,
 ) {
@@ -94,7 +94,7 @@ mod tests {
             file: source.to_string(),
         };
 
-        let tasks = reader.read();
+        let tasks = reader.raw_crons();
         assert_eq!(tasks.len(), 4);
 
         let task = &tasks[0];
