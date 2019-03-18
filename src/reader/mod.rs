@@ -6,7 +6,7 @@ use crate::time_units::minutes::Minutes;
 use crate::time_units::months::Months;
 use crate::time_units::{TimeFieldSpec, TimeUnitItem};
 use crate::TaCron;
-use file_reader::instantiate_crontabs_readers;
+use file_reader::instantiate_file_readers;
 use regex::{Captures, Regex};
 use std::collections::HashMap;
 
@@ -27,7 +27,7 @@ pub fn instantiate_readers(
     config: &HashMap<String, Vec<String>>,
 ) -> Vec<Box<Reader + Sync + Send>> {
     let mut readers: Vec<Box<Reader + Sync + Send>> = Vec::new();
-    for (reader_type, fn_register) in vec![("crontabs", instantiate_crontabs_readers)] {
+    for (reader_type, fn_register) in vec![("files", instantiate_file_readers)] {
         match config.get(reader_type) {
             Some(files) => {
                 fn_register(&mut readers, files);
@@ -202,10 +202,10 @@ mod tests {
     use std::collections::HashMap;
 
     #[test]
-    fn there_is_readers_for_crontabs() {
+    fn there_is_readers_for_files() {
         let mut config: HashMap<String, Vec<String>> = HashMap::new();
         config.insert(
-            "crontabs".to_string(),
+            "files".to_string(),
             vec!["crontab/foo".to_string(), "crontab/bar".to_string()],
         );
         let readers = instantiate_readers(&config);

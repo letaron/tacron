@@ -10,7 +10,7 @@ pub struct FileReader {
 
 impl FileReader {
     pub fn new(file: String) -> Self {
-        FileReader { file: file }
+        FileReader { file }
     }
 }
 
@@ -77,18 +77,18 @@ impl Reader for FileReader {
 }
 
 /// Push a reader in `readers` for each `crontabs` file
-pub fn instantiate_crontabs_readers(
+pub fn instantiate_file_readers(
     readers: &mut Vec<Box<Reader + Sync + Send>>, crontabs: &Vec<String>,
 ) {
     for crontab in crontabs {
-        println!("[READER] contrab - loading: {:?}", crontab);
+        println!("[READER] file - loading: {:?}", crontab);
         readers.push(Box::new(FileReader::new(crontab.to_string())));
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::reader::file_reader::{instantiate_crontabs_readers, FileReader};
+    use crate::reader::file_reader::{instantiate_file_readers, FileReader};
     use crate::Reader;
 
     #[test]
@@ -125,7 +125,7 @@ mod tests {
         let mut readers: Vec<Box<Reader + Sync + Send>> = Vec::new();
         let crontabs = vec!["crontab1".to_string(), "crontab2".to_string()];
 
-        instantiate_crontabs_readers(&mut readers, &crontabs);
+        instantiate_file_readers(&mut readers, &crontabs);
         assert_eq!(readers.len(), crontabs.len());
     }
 }
