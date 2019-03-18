@@ -18,7 +18,7 @@ pub fn filter_tacrons(
     );
 
     tacrons.iter().filter(move |tacron| {
-        tacron.minute.contains(&(current_dow as u8))
+        tacron.dow.contains(&(current_dow as u8))
             && tacron.month.contains(&(current_month as u8))
             && tacron.dom.contains(&(current_dom as u8))
             && tacron.hour.contains(&(current_hour as u8))

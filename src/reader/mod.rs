@@ -192,7 +192,6 @@ fn parse(ta_cron: &RawCron) -> TaCron {
         month: Months::from_time_field_specs(parse_field(&ta_cron.month, &named_handlers), &source),
         dow: DaysOfWeek::from_time_field_specs(parse_field(&ta_cron.dow, &named_handlers), &source),
         command: ta_cron.command.clone(),
-        source: source,
     }
 }
 

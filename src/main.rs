@@ -17,13 +17,12 @@ use std::{
 use time_units::TimeFieldValuesContainer;
 
 pub struct TaCron {
-    pub minute: TimeFieldValuesContainer,
-    pub hour: TimeFieldValuesContainer,
-    pub dom: TimeFieldValuesContainer,
-    pub month: TimeFieldValuesContainer,
-    pub dow: TimeFieldValuesContainer,
-    pub command: String,
-    pub source: String,
+    minute: TimeFieldValuesContainer,
+    hour: TimeFieldValuesContainer,
+    dom: TimeFieldValuesContainer,
+    month: TimeFieldValuesContainer,
+    dow: TimeFieldValuesContainer,
+    command: String,
 }
 
 fn exec_command(command: String) {
