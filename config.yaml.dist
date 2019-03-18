@@ -1,4 +1,4 @@
-crontabs:
-  - fixtures/crontab
-  - fixtures/another_crontab
-  
+readers:
+  crontabs:
+    - fixtures/crontab
+    - fixtures/another_crontab

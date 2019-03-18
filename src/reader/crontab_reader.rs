@@ -72,6 +72,7 @@ impl Reader for CrontabReader {
     }
 }
 
+/// Add a reader for each crontab file
 pub fn add_crontabs_readers(readers: &mut Vec<Box<Reader + Sync + Send>>, crontabs: &Vec<String>) {
     for crontab in crontabs {
         println!("[READER] contrab - loading: {:?}", crontab);

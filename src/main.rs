@@ -1,5 +1,4 @@
 extern crate chrono;
-extern crate config;
 extern crate signal_hook;
 
 mod filter;
@@ -53,10 +52,14 @@ fn main() {
     let readers: Vec<Box<Reader + Sync + Send>>;
     {
         let settings = get_settings(); // will be dropped at the end of the inner scope
-        readers = get_readers(&settings);
+        if let Some(config_readers) = settings.readers {
+            readers = get_readers(&config_readers);
+        } else {
+            readers = Vec::new();
+        }
     }
     let tacrons = get_tacrons(&readers);
-    println!("[INFO] {} tacrons configured", tacrons.len());
+    println!("[INFO] {} TaCrons found", tacrons.len());
 
     let shared_tacrons = Arc::new(RwLock::new(tacrons));
 
@@ -78,8 +81,10 @@ fn add_sighup_handler(readers: Vec<Box<Reader + Sync + Send>>, tacrons: Arc<RwLo
             // @todo try to replace directly the ref but may lead to mem leaks maybe
             local_readers.clear();
             let settings = get_settings();
-            let mut readers = get_readers(&settings);
-            local_readers.append(&mut readers);
+            if let Some(config_readers) = settings.readers {
+                let mut readers = get_readers(&config_readers);
+                local_readers.append(&mut readers);
+            }
 
             // @todo try to replace directly the ref but may lead to mem leaks maybe
             local_tacrons.clear();

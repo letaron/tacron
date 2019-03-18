@@ -1,8 +1,60 @@
+extern crate yaml_rust;
+
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::Read;
+use yaml_rust::yaml;
 
-pub fn get_settings() -> HashMap<String, Vec<String>> {
-    let mut settings = config::Config::default();
-    settings.merge(config::File::with_name("config")).unwrap();
+pub struct Settings {
+    pub readers: Option<HashMap<String, Vec<String>>>,
+}
 
-    settings.try_into::<HashMap<String, Vec<String>>>().unwrap()
+impl Settings {
+    fn set_readers(&mut self, readers: HashMap<String, Vec<String>>) {
+        self.readers = Some(readers);
+    }
+}
+
+pub fn get_settings() -> Settings {
+    let mut config = Settings {
+        readers: None
+    };
+
+    let mut f = File::open("config.yaml").expect("Cannot open config.yaml");
+    let mut s = String::new();
+    f.read_to_string(&mut s).expect("Cannot read config.yaml");
+
+    let docs = yaml::YamlLoader::load_from_str(&s).unwrap();
+    let doc = &docs[0];
+
+    let readers = &doc["readers"];
+    if readers.is_badvalue() {
+        panic!("No readers configured");
+    }
+    let readers = extract_readers(readers);
+    
+    config.set_readers(readers);
+
+    config
+}
+
+fn extract_readers(config_readers: &yaml_rust::Yaml) -> HashMap<String, Vec<String>> {
+    let mut readers: HashMap<String, Vec<String>> = HashMap::new();
+    let mut crontab_readers_conf: Vec<String> = vec![];
+
+    let config_crontab_paths = &config_readers["crontabs"];
+    for config_crontab_path in config_crontab_paths
+        .as_vec()
+        .expect("Crontabs readers must be an array")
+    {
+        crontab_readers_conf.push(
+            config_crontab_path
+                .as_str()
+                .expect("Crontab file name must be a string")
+                .to_string(),
+        );
+    }
+    readers.insert("crontabs".to_string(), crontab_readers_conf);
+
+    readers
 }
