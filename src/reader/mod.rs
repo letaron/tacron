@@ -1,4 +1,4 @@
-pub mod crontab_reader;
+pub mod file_reader;
 use crate::time_units::days_of_month::DaysOfMonth;
 use crate::time_units::days_of_week::DaysOfWeek;
 use crate::time_units::hours::Hours;
@@ -6,7 +6,7 @@ use crate::time_units::minutes::Minutes;
 use crate::time_units::months::Months;
 use crate::time_units::{TimeFieldSpec, TimeUnitItem};
 use crate::TaCron;
-use crontab_reader::instantiate_crontabs_readers;
+use file_reader::instantiate_crontabs_readers;
 use regex::{Captures, Regex};
 use std::collections::HashMap;
 

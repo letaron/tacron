@@ -4,17 +4,17 @@ use crate::Reader;
 use regex::Regex;
 use std::fs;
 
-pub struct CrontabReader {
+pub struct FileReader {
     file: String,
 }
 
-impl CrontabReader {
+impl FileReader {
     pub fn new(file: String) -> Self {
-        CrontabReader { file: file }
+        FileReader { file: file }
     }
 }
 
-impl Reader for CrontabReader {
+impl Reader for FileReader {
     fn raw_crons(&self) -> Vec<RawCron> {
         let mut tasks: Vec<RawCron> = Vec::new();
         let content = fs::read_to_string(&self.file).expect("Unable to read file");
@@ -25,7 +25,7 @@ impl Reader for CrontabReader {
         let mut line_number = 0;
         for line in content.split("\n") {
             line_number += 1;
-            let source = format!("crontab_reader@{}:{}", self.file.to_string(), line_number);
+            let source = format!("file_reader@{}:{}", self.file.to_string(), line_number);
 
             if line.len() == 0 || line_is_comment_regex.is_match(line) {
                 continue;
@@ -78,19 +78,19 @@ pub fn instantiate_crontabs_readers(
 ) {
     for crontab in crontabs {
         println!("[READER] contrab - loading: {:?}", crontab);
-        readers.push(Box::new(CrontabReader::new(crontab.to_string())));
+        readers.push(Box::new(FileReader::new(crontab.to_string())));
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::reader::crontab_reader::{instantiate_crontabs_readers, CrontabReader};
+    use crate::reader::file_reader::{instantiate_crontabs_readers, FileReader};
     use crate::Reader;
 
     #[test]
     fn it_reads() {
         let source = "fixtures/crontab";
-        let reader = CrontabReader {
+        let reader = FileReader {
             file: source.to_string(),
         };
 
@@ -104,7 +104,7 @@ mod tests {
         assert_eq!(task.month, "*");
         assert_eq!(task.dow, "*");
         assert_eq!(task.command, "/foo/bar");
-        assert_eq!(task.source, "crontab_reader@fixtures/crontab:5");
+        assert_eq!(task.source, "file_reader@fixtures/crontab:5");
 
         let task = &tasks[1];
         assert_eq!(task.minute, "1");
@@ -113,7 +113,7 @@ mod tests {
         assert_eq!(task.month, "4");
         assert_eq!(task.dow, "5");
         assert_eq!(task.command, "baz \"foo\" 2>&1");
-        assert_eq!(task.source, "crontab_reader@fixtures/crontab:6");
+        assert_eq!(task.source, "file_reader@fixtures/crontab:6");
     }
 
     #[test]
