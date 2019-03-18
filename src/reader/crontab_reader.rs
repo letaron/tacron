@@ -73,7 +73,9 @@ impl Reader for CrontabReader {
 }
 
 /// Add a reader for each crontab file
-pub fn add_crontabs_readers(readers: &mut Vec<Box<Reader + Sync + Send>>, crontabs: &Vec<String>) {
+pub fn instantiate_crontabs_readers(
+    readers: &mut Vec<Box<Reader + Sync + Send>>, crontabs: &Vec<String>,
+) {
     for crontab in crontabs {
         println!("[READER] contrab - loading: {:?}", crontab);
         readers.push(Box::new(CrontabReader::new(crontab.to_string())));
@@ -82,7 +84,7 @@ pub fn add_crontabs_readers(readers: &mut Vec<Box<Reader + Sync + Send>>, cronta
 
 #[cfg(test)]
 mod tests {
-    use crate::reader::crontab_reader::{add_crontabs_readers, CrontabReader};
+    use crate::reader::crontab_reader::{instantiate_crontabs_readers, CrontabReader};
     use crate::Reader;
 
     #[test]
@@ -119,7 +121,7 @@ mod tests {
         let mut readers: Vec<Box<Reader + Sync + Send>> = Vec::new();
         let crontabs = vec!["crontab1".to_string(), "crontab2".to_string()];
 
-        add_crontabs_readers(&mut readers, &crontabs);
+        instantiate_crontabs_readers(&mut readers, &crontabs);
         assert_eq!(readers.len(), crontabs.len());
     }
 }

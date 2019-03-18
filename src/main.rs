@@ -8,7 +8,7 @@ mod time_units;
 
 use chrono::Local;
 use filter::filter_tacrons;
-use reader::{get_readers, get_tacrons, Reader};
+use reader::{get_tacrons, instantiate_readers, Reader};
 use settings::get_settings;
 use std::{
     sync::{Arc, Mutex, RwLock},
@@ -52,11 +52,7 @@ fn main() {
     let readers: Vec<Box<Reader + Sync + Send>>;
     {
         let settings = get_settings(); // will be dropped at the end of the inner scope
-        if let Some(config_readers) = settings.readers {
-            readers = get_readers(&config_readers);
-        } else {
-            readers = Vec::new();
-        }
+        readers = instantiate_readers(&settings.readers);
     }
     let tacrons = get_tacrons(&readers);
     println!("[INFO] {} TaCrons found", tacrons.len());
@@ -81,10 +77,8 @@ fn add_sighup_handler(readers: Vec<Box<Reader + Sync + Send>>, tacrons: Arc<RwLo
             // @todo try to replace directly the ref but may lead to mem leaks maybe
             local_readers.clear();
             let settings = get_settings();
-            if let Some(config_readers) = settings.readers {
-                let mut readers = get_readers(&config_readers);
-                local_readers.append(&mut readers);
-            }
+            let mut readers = instantiate_readers(&settings.readers);
+            local_readers.append(&mut readers);
 
             // @todo try to replace directly the ref but may lead to mem leaks maybe
             local_tacrons.clear();

@@ -6,20 +6,16 @@ use std::io::Read;
 use yaml_rust::yaml;
 
 pub struct Settings {
-    pub readers: Option<HashMap<String, Vec<String>>>,
+    pub readers: HashMap<String, Vec<String>>,
 }
 
 impl Settings {
-    fn set_readers(&mut self, readers: HashMap<String, Vec<String>>) {
-        self.readers = Some(readers);
+    fn from_readers(readers: HashMap<String, Vec<String>>) -> Self {
+        Settings { readers: readers }
     }
 }
 
 pub fn get_settings() -> Settings {
-    let mut config = Settings {
-        readers: None
-    };
-
     let mut f = File::open("config.yaml").expect("Cannot open config.yaml");
     let mut s = String::new();
     f.read_to_string(&mut s).expect("Cannot read config.yaml");
@@ -27,15 +23,13 @@ pub fn get_settings() -> Settings {
     let docs = yaml::YamlLoader::load_from_str(&s).unwrap();
     let doc = &docs[0];
 
-    let readers = &doc["readers"];
-    if readers.is_badvalue() {
+    let config_readers = &doc["readers"];
+    if config_readers.is_badvalue() {
         panic!("No readers configured");
     }
-    let readers = extract_readers(readers);
-    
-    config.set_readers(readers);
+    let readers = extract_readers(config_readers);
 
-    config
+    Settings::from_readers(readers)
 }
 
 fn extract_readers(config_readers: &yaml_rust::Yaml) -> HashMap<String, Vec<String>> {

@@ -6,7 +6,7 @@ use crate::time_units::minutes::Minutes;
 use crate::time_units::months::Months;
 use crate::time_units::{TimeFieldSpec, TimeUnitItem};
 use crate::TaCron;
-use crontab_reader::add_crontabs_readers;
+use crontab_reader::instantiate_crontabs_readers;
 use regex::{Captures, Regex};
 use std::collections::HashMap;
 
@@ -23,9 +23,11 @@ pub trait Reader {
     }
 }
 
-pub fn get_readers(settings: &HashMap<String, Vec<String>>) -> Vec<Box<Reader + Sync + Send>> {
+pub fn instantiate_readers(
+    settings: &HashMap<String, Vec<String>>,
+) -> Vec<Box<Reader + Sync + Send>> {
     let mut readers: Vec<Box<Reader + Sync + Send>> = Vec::new();
-    for (reader_type, fn_register) in vec![("crontabs", add_crontabs_readers)] {
+    for (reader_type, fn_register) in vec![("crontabs", instantiate_crontabs_readers)] {
         match settings.get(reader_type) {
             Some(files) => {
                 fn_register(&mut readers, files);
@@ -197,7 +199,7 @@ fn parse(ta_cron: &RawCron) -> TaCron {
 #[cfg(test)]
 mod tests {
 
-    use crate::reader::get_readers;
+    use super::instantiate_readers;
     use std::collections::HashMap;
 
     #[test]
@@ -207,7 +209,7 @@ mod tests {
             "crontabs".to_string(),
             vec!["crontab/foo".to_string(), "crontab/bar".to_string()],
         );
-        let readers = get_readers(&settings);
+        let readers = instantiate_readers(&settings);
         assert_eq!(readers.len(), 2);
     }
 
@@ -218,7 +220,7 @@ mod tests {
             "foo".to_string(),
             vec!["foo/bar".to_string(), "foo/baz".to_string()],
         );
-        let readers = get_readers(&settings);
+        let readers = instantiate_readers(&settings);
         assert_eq!(readers.len(), 0);
     }
 }
