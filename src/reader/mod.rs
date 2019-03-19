@@ -30,18 +30,20 @@ pub fn instantiate_readers(
 ) -> Vec<Box<Reader + Sync + Send>> {
     let mut readers: Vec<Box<Reader + Sync + Send>> = Vec::new();
 
-    match config.get("files") {
-        Some(values) => {
-            instantiate_file_readers(&mut readers, values);
-        }
-        None => println!("[READER]: no configuration key found for files"),
-    }
+    let mut type_instantiator_mapping: Vec<(
+        &str,
+        fn(&mut Vec<Box<(Reader + Send + Sync)>>, &Vec<String>),
+    )> = Vec::new();
+    type_instantiator_mapping.push(("files", instantiate_file_readers));
+    type_instantiator_mapping.push(("crontabs", instantiate_crontab_readers));
 
-    match config.get("crontabs") {
-        Some(values) => {
-            instantiate_crontab_readers(&mut readers, values);
+    for (r#type, instantiator) in type_instantiator_mapping {
+        match config.get(r#type) {
+            Some(values) => {
+                instantiator(&mut readers, values);
+            }
+            None => println!("[READER]: no configuration key found for {}", r#type),
         }
-        None => println!("[READER] no configuration key found for crontabs"),
     }
     readers
 }
