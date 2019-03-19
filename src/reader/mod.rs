@@ -1,3 +1,4 @@
+pub mod crontab_reader;
 pub mod file_reader;
 use crate::time_units::days_of_month::DaysOfMonth;
 use crate::time_units::days_of_week::DaysOfWeek;
@@ -6,6 +7,7 @@ use crate::time_units::minutes::Minutes;
 use crate::time_units::months::Months;
 use crate::time_units::{TimeFieldSpec, TimeUnitItem};
 use crate::TaCron;
+use crontab_reader::instantiate_crontab_readers;
 use file_reader::instantiate_file_readers;
 use regex::{Captures, Regex};
 use std::collections::HashMap;
@@ -27,13 +29,19 @@ pub fn instantiate_readers(
     config: &HashMap<String, Vec<String>>,
 ) -> Vec<Box<Reader + Sync + Send>> {
     let mut readers: Vec<Box<Reader + Sync + Send>> = Vec::new();
-    for (reader_type, fn_register) in vec![("files", instantiate_file_readers)] {
-        match config.get(reader_type) {
-            Some(files) => {
-                fn_register(&mut readers, files);
-            }
-            None => println!("[READERS]: no configuration key found for {}", reader_type),
+
+    match config.get("files") {
+        Some(values) => {
+            instantiate_file_readers(&mut readers, values);
         }
+        None => println!("[READER]: no configuration key found for files"),
+    }
+
+    match config.get("crontabs") {
+        Some(values) => {
+            instantiate_crontab_readers(&mut readers, values);
+        }
+        None => println!("[READER] no configuration key found for crontabs"),
     }
     readers
 }

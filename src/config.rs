@@ -34,21 +34,22 @@ pub fn get_config() -> Config {
 
 fn extract_readers(config_readers: &yaml_rust::Yaml) -> HashMap<String, Vec<String>> {
     let mut readers: HashMap<String, Vec<String>> = HashMap::new();
-    let mut crontab_readers_conf: Vec<String> = vec![];
 
-    let config_crontab_paths = &config_readers["files"];
-    for config_crontab_path in config_crontab_paths
-        .as_vec()
-        .expect("Crontabs readers must be an array")
-    {
-        crontab_readers_conf.push(
-            config_crontab_path
-                .as_str()
-                .expect("Crontab file name must be a string")
-                .to_string(),
-        );
+    for r#type in vec!["files", "crontabs"] {
+        let mut readers_conf: Vec<String> = vec![];
+        let paths = &config_readers[r#type];
+        for path in paths
+            .as_vec()
+            .expect(&format!("Readers {} must be an array", r#type))
+        {
+            readers_conf.push(
+                path.as_str()
+                    .expect(&format!("Value for reader {} must be a string", r#type))
+                    .to_string(),
+            );
+        }
+        readers.insert(r#type.to_string(), readers_conf);
     }
-    readers.insert("files".to_string(), crontab_readers_conf);
 
     readers
 }

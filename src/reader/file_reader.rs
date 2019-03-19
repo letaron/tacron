@@ -14,7 +14,7 @@ impl FileReader {
     }
 }
 
-fn parse_content(content: String, name: &String) -> Vec<RawCron> {
+pub fn parse_content(content: String, name: &String) -> Vec<RawCron> {
     let mut tasks: Vec<RawCron> = Vec::new();
     let line_is_comment_regex = Regex::new(r"^\s*#").unwrap();
     let line_split_regex = Regex::new(r"\s+").unwrap();
