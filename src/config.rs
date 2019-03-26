@@ -37,18 +37,28 @@ fn extract_readers(config_readers: &yaml_rust::Yaml) -> HashMap<String, Vec<Stri
 
     for r#type in vec!["files", "crontabs"] {
         let mut readers_conf: Vec<String> = vec![];
-        let paths = &config_readers[r#type];
-        for path in paths
-            .as_vec()
-            .expect(&format!("Readers {} must be an array", r#type))
-        {
-            readers_conf.push(
-                path.as_str()
-                    .expect(&format!("Value for reader {} must be a string", r#type))
-                    .to_string(),
+
+        let config_paths = &config_readers[r#type];
+        if config_paths.is_badvalue() {
+            println!("[CONFIG] key \"{}\" not found", r#type);
+            continue;
+        }
+
+        if let Some(paths) = config_paths.as_vec() {
+            for config_path in paths {
+                if let Some(path) = config_path.as_str() {
+                    readers_conf.push(path.to_string());
+                } else {
+                    println!("[CONFIG] Value for reader \"{}\" must be a string", r#type);
+                }
+            }
+            readers.insert(r#type.to_string(), readers_conf);
+        } else {
+            println!(
+                "[CONFIG] Values for reader \"{}\" must be in an array",
+                r#type
             );
         }
-        readers.insert(r#type.to_string(), readers_conf);
     }
 
     readers

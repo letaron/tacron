@@ -38,11 +38,8 @@ pub fn instantiate_readers(
     type_instantiator_mapping.push(("crontabs", instantiate_crontab_readers));
 
     for (r#type, instantiator) in type_instantiator_mapping {
-        match config.get(r#type) {
-            Some(values) => {
-                instantiator(&mut readers, values);
-            }
-            None => println!("[READER]: no configuration key found for {}", r#type),
+        if let Some(values) = config.get(r#type) {
+            instantiator(&mut readers, values);
         }
     }
     readers
@@ -99,9 +96,8 @@ fn parse_field(field: &String, field_handlers: &[&FieldHandler]) -> Vec<TimeFiel
 
     for specifier in field.split(",") {
         for field_handler in field_handlers {
-            match field_handler.regex.captures(specifier) {
-                Some(x) => values.push((field_handler.f)(x)),
-                None => {}
+            if let Some(x) = field_handler.regex.captures(specifier) {
+                values.push((field_handler.f)(x));
             }
         }
     }
